@@ -5,10 +5,79 @@
 #include <string.h> 
 #include <stdbool.h>
 
-int solver(char *puzzle, int *inst, int instlen)
+// had to take some help since C aint known for being too easy with these.
+// not aiming for hischores so didn't feel too quilty :D
+
+
+int solver(char *puzzle, int nums, int *inst, int instlen)
 {
-    printf("now solving %s\n", puzzle);
-    return 0;
+
+//    printf("%s - %d\n", puzzle, nums);
+//    printf("%d - %d\n", inst[0], instlen);
+
+    if(instlen <= 0 || inst[0] == 0)
+        return 1;
+
+    int i = 0;
+    int j = 0;
+    int res = 0;
+    int possible = 0;
+
+//    printf("current: %s\n", puzzle);
+
+    // we check all possibilities as long as have possibility to fit on string
+    while (i <= nums - inst[0]) 
+    {
+        possible = 1;
+        j = 0;
+        // loop to check first instruction
+        while (j < inst[0]) 
+        {
+            // check if there is block
+            if (puzzle[i+j] == '.') 
+            {
+                possible = 0;
+            }
+            j++;
+        }
+        // check if current index + first instruction is under the length of the string and there is # next to this position (cant be)
+        if (i + inst[0] < nums && puzzle[i + inst[0]] == '#') 
+        {
+            possible = 0;
+        }
+        // check if we are on string but last char was #. (cant be since there has to be atleast one between each picross)
+        if (i > 0 && puzzle[i-1] == '#') 
+        {
+            possible = 0;
+        }
+        // if there was only one instruction we dont go recursive
+        if (instlen == 1) 
+        {
+            j = i+inst[0]+1;
+            //check if there is still something that has to be part of it, or we gucci
+            while (j < nums) 
+            {
+                if (puzzle[j] == '#') 
+                {
+                    possible = 0;
+                }
+                j++;
+            }
+        }
+        // if variable was not changed, this conf is possible, and we move to next instruction check
+        // that being possible to start from puzzle[i + last instruction length + 1 empty space]
+        if (possible) 
+        {
+            res += solver(&puzzle[i+inst[0]+1], nums-i-inst[0]-1, &inst[1], instlen-1);
+        }
+        if (puzzle[i] == '#')
+        {
+            break;
+        }
+        i++;
+    }
+//    printf("\n");
+    return res;
 }
 
 int parser(char *line)
@@ -21,6 +90,8 @@ int parser(char *line)
     int inst[10] = {0};
     int len = 0;
     int instlen = 0;
+    char *token;
+    char *token2;
 
     while(cpy[i] != ' ')
     {
@@ -29,121 +100,37 @@ int parser(char *line)
     }
     i++;
     puzzle = strndup(cpy, len);
-    while(i < strlen(cpy))
+    while((token = strtok_r(cpy, " ", &cpy)) != NULL)
     {
-        if (isdigit(cpy[i]))
+        while((token = strtok_r(cpy, ",", &cpy)) != NULL)
         {
-            while (isdigit(cpy[i]))
-            {
-                inst[j] = cpy[i] - '0';
-                j++;
-                i++;
-            }
+            inst[j] = atoi(token);
+            j++;
             instlen++;
         }
-        i++;
     }
 
-    // debug
-    i = 0;
-    printf("parsed line: %s\n", puzzle);
-    printf("instructions: %d\n", instlen);
-    while (i < 10)
-    {
-        printf("inst[%d]: %d\n", i, inst[i]);
-        i++;
-    }
-
-
-    int nextins = 0;
-    i = 0;
-    int res = 0;
-    if(instlen > 0)
-    {
-        while(i < strlen(puzzle))
-        {
-            res += solver(&puzzle[i], inst, instlen);
-            i++;
-        }
-    }
-
-
-
-
-//    int nextins = 0;
-//    int x = 0;
-//    int y = 0;
-//    int k = 0;
-//    int pos = 0;
-//    if(instlen > 0)
+//    // debug
+//    i = 0;
+//    printf("parsed line: %s\n", puzzle);
+//    printf("instructions: %d\n", instlen);
+//    while (i < 10)
 //    {
-//        i = 0;
-//        j = 0;
-//        
-//        while (i < strlen(puzzle))
-//        {
-//            if(puzzle[i] != '.')
-//            {
-//                while (j < strlen(puzzle))
-//                {
-//                    nextins = inst[x];
-//                    y = x;
-//                    j = i;
-//                    k = 0;
-//                    while (j + k < strlen(puzzle))
-//                    {
-//                        printf("%s\n", &puzzle[j]);
-//                        sleep(1);
-//                        while (puzzle[j + k] != '.' && nextins > -2)
-//                        {
-//                            if (puzzle[j+ k] == '#')
-//                            {
-//                                while(puzzle[j + k] == '#')
-//                                {
-//                                    nextins--;
-//                                    k++;
-//                                }
-//                            }
-//                            else
-//                            {
-//                                nextins--;
-//                                k++;
-//                            }
-//                        }
-//                        if (nextins == 0 && puzzle[j + 1] != '#')
-//                        {
-//                            y++;
-//                        }
-//                        else
-//                        {
-//                            break;
-//                        }
-//                        k++;
-//                        while (puzzle[j + k] == '.')
-//                            k++;
-//                        nextins = inst[y];
-//                        if (j + k == strlen(puzzle) - 1 || nextins == 0)
-//                        {
-//                            printf("possibility\n");
-//                            pos++;
-//                        }
-//                        k++;
-//                    }
-//                    if (j == strlen(puzzle) - 1 || nextins == 0)
-//                    {
-//                        printf("possibility\n");
-//                        pos++;
-//                    }
-//                    printf("\n");
-//                }     
-//            }
-//            i++;
-//        }
+//        printf("inst[%d]: %d\n", i, inst[i]);
+//        i++;
 //    }
+//
+//
+//    int nextins = 0;
+//    i = 0;
+    int res = 0;
+    len = strlen(puzzle);
+    res = solver(puzzle, len, inst, instlen);
 
+//    printf("my res: %d\n", res);
     free (cpy);
     free (puzzle);
-    return 0;
+    return res;
 }
 
 int main(int argc, char **argv)
@@ -151,8 +138,9 @@ int main(int argc, char **argv)
     char    line[1024];
     FILE    *fptr;
     int     result = 0;
-    int     current = 0;
+    int     current = 1;
     int     instsaved = 0;
+    int     total = 0;
     char    *inst;
 
     if (argc < 2)
@@ -168,8 +156,12 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        result += parser(line);
+        result = parser(line);
+        printf("Line: %d - %d\n", current, result);
+        total += result;
+        current++;
     }
+    printf ("%d\n", total);
     fclose(fptr);
     return result;
  
