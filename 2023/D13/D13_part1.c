@@ -19,9 +19,7 @@ int solve_map(char **map, int current)
     linelen = strlen(map[i]);
     while (i < current)
     {
-        printf("%s", map[i]);
         vertical[i] = strdup(map[i]);
-//        printf("vertical[%d]: %s\n", i, vertical[i]);
         linecount++;
         i++;
     }
@@ -30,7 +28,6 @@ int solve_map(char **map, int current)
     j = 0;
     int x = 0;
     int y = 0;
-//    printf("len: %d - count: %d\n", linelen, linecount);
     while (j < linelen - 1)
     {
         i = 0;
@@ -43,7 +40,6 @@ int solve_map(char **map, int current)
             y++;
         }
         horizontal[x][y] = '\0';
-//        printf("horizontal[%d]: %s \n", x, horizontal[x]);
         x++;
         j++;
     }
@@ -56,28 +52,19 @@ int solve_map(char **map, int current)
     j = 1;
     x = 0;
     y = 0;
-    printf("len: %d - count: %d\n", linelen, linecount);
 
     while (j < linelen - 1)
     {
         x = j - 1;
-        printf("hor compare[%d]: %s\n", x, horizontal[x]);
-        printf("hor compare[%d]: %s\n", j, horizontal[j]);
-        printf("\n");
         if (strcmp(horizontal[j], horizontal[x]) == 0)
         {
-//            printf("matching hortline %d - %d\n", x, j);
             y = 1;
             while (x - y >= 0 && j + y <= linelen - 2)
             {
-                printf("hor compare[%d]: %s\n", j + y, horizontal[j + y]);
-                printf("hor compare[%d]: %s\n", x - y, horizontal[x - y]);
-                printf("\n");
                 if (strcmp(horizontal[j + y], horizontal[x - y]) == 0)
                 {
                     y++;
                     matched = 1;
-//                    printf("match\n");
                 }
                 else
                 {
@@ -85,19 +72,13 @@ int solve_map(char **map, int current)
                     break;
                 }
             }
-//            printf("x - y = %d, j + y = %d \n", x - y, j + y);
             if ((x - y < 1 || j + y >= linelen - 1) && matched == 1)
             {
-//                printf("x - y = %d, j + y = %d \n", x - y, j + y);
-                printf("hort match\n");
                 hortresult = (x + 1);
-                printf("hort res: %d\n", hortresult);
             }
         }
-//        printf("%d line\n", j);
         j++;
     }
-//    printf("NO hort match\n");
 
 
     i = 1;
@@ -110,18 +91,12 @@ int solve_map(char **map, int current)
         while (i < linecount)
         {
             x = i - 1;
-            printf("ver compare[%d]: %s\n", x, vertical[x]);
-            printf("ver compare[%d]: %s\n", i, vertical[i]);
-            printf("\n");
             if (strcmp(vertical[i], vertical[x]) == 0)
             {
 //                   printf("matching vertline %d - %d\n", x, i);
                 y = 1;
                 while (x - y >= 0 && i + y <= linecount - 1)
                 {    
-                    printf("ver compare[%d]: %s\n", i + y, vertical[i + y]);
-                    printf("ver compare[%d]: %s\n", x - y, vertical[x - y]);
-                    printf("\n");
                     if (strcmp(vertical[i + y], vertical[x - y]) == 0)
                     {
                         y++;
@@ -134,9 +109,7 @@ int solve_map(char **map, int current)
                 }
                 if (x - y == -1 || i + y == linecount)
                 {
-                        printf("vert match\n");
                         vertresult = (x + 1);
-                        printf("ver res: %d\n", vertresult);
                 }
             }
 //               printf("%d line\n", i);
@@ -160,8 +133,6 @@ int solve_map(char **map, int current)
         i++;
     }
     vertresult *= 100;
-    printf("\n");
-    printf("Horizontal res: %d, vertical res: %d  -  ", hortresult, vertresult);
     return(fmax(vertresult, hortresult));
 }
 
@@ -203,7 +174,7 @@ int main(int argc, char **argv)
         map[current] = parser(line);
         if ((strcmp(map[current],"\n") == 0) || (strcmp(map[current],"\0") == 0))
         {
-            printf("map number: %d\n", mapnr + 1);
+            printf("Map %d: - ", mapnr + 1);
             result = solve_map(map, current);
             printf("%ld\n", result);
             total += result;
@@ -213,7 +184,7 @@ int main(int argc, char **argv)
 //        printf("Line: %d\n", current);
         current++;;
     }
-    printf("map number: %d\n", mapnr + 1);
+    printf("Map %d: - ", mapnr + 1);
     result = solve_map(map, current);
 //    printf("%d: map res: %ld\n", mapnr +1, result);
     total += result;
