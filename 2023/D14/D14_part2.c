@@ -16,11 +16,13 @@ int solve_map(char **map, int lines)
     int beam[2];
     int len;
     long cycles = 10000;
+    int cycle_start = 122;
+    int cycle_len = 18;
 
     len = strlen(map[0]);
 
     printf("\nSolving\n");
-    while (k < 1000)
+    while (k < (cycle_start + (cycles - cycle_start) % cycle_len))
     {
         //north
         i = 0;
@@ -249,6 +251,7 @@ int solve_map(char **map, int lines)
         k++;
     }
 
+    printf("^^ this is the result ^^\n");
     //debug
 //    j = 0;
 //    i = 0;
