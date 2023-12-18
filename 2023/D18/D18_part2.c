@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-int     verticles[700][2];
+long     verticles[700][2];
 long     border_len;
 
 typedef struct
@@ -25,13 +25,14 @@ long double countArea(int n)
     long j = n - 1;
     for (long i = 0; i < n; i++)
     {
+//        printf("A: %ld, B: %ld\n", (verticles[j][0] + verticles[i][0]), (verticles[j][1] - verticles[i][1]));
         area += (verticles[j][0] + verticles[i][0]) * (verticles[j][1] - verticles[i][1]);
-        printf("area atm: %Lf\n", area);
+//        printf("area atm: %Lf\n", area);
         j = i; 
     }
 
-    printf("\n\n pre return values:\n");
-    printf("area %Lf\n fabs(area/2): %f\n border_len: %ld\n", area, fabs(area / 2.0), border_len);
+//    printf("\n\n pre return values:\n");
+//    printf("area %Lf\n fabs(area/2): %f\n border_len: %ld\n", area, fabs(area / 2.0), border_len);
     return fabs(area / 2.0) + (border_len / 2) + 1;
 }
 
@@ -44,8 +45,8 @@ int solve(instructions **ins, int limit)
     border_len = 0;
     while (x < limit)
     {
-        printf("ins[%d]->dir: %d, length: %ld\n", x, ins[x]->direction, ins[x]->length);
-        printf("startpoint i: %ld, j: %ld\n", i, j);
+//        printf("ins[%d]->dir: %d, length: %ld\n", x, ins[x]->direction, ins[x]->length);
+//        printf("startpoint i: %ld, j: %ld\n", i, j);
         verticles[x][0] = i;
         verticles[x][1] = j;
         border_len += ins[x]->length;
@@ -159,16 +160,16 @@ instructions *parser(char *line, int current)
         {
             tmp = malloc(sizeof(char) * 7);
             strncpy(tmp, &tok[2], sizeof(char) * 5);
-            printf("holding: %s\n", tmp);
+//            printf("holding: %s\n", tmp);
             int i = 0;
             new->length = strtol(tmp, NULL, 16);
             new->direction = tok[7] - '0';
         }
     }
-    printf("AFTER PARSE:\n");
-    printf("new->id: %d\n", new->id);
-    printf("new->dir: %d\n", new->direction);
-    printf("new->length: %ld\n", new->length);
+//    printf("AFTER PARSE:\n");
+//    printf("new->id: %d\n", new->id);
+//    printf("new->dir: %d\n", new->direction);
+//    printf("new->length: %ld\n", new->length);
 
     return new;
 }
