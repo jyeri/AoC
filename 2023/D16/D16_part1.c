@@ -130,6 +130,62 @@ int solve_map(char **map, int lines)
             }
             pointer->len += 1;
         }
+        else if (map[pointer->x][pointer->y] == '-')
+        {
+            if (pointer->dir == 1);
+            {
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->y += 1;
+            }
+            if (pointer->dir == 2);
+            {
+                create_beam(start, 1, pointer->x, pointer->y + 1);
+                pointer->dir = 3;
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->y -= 1;
+            }
+            if (pointer->dir == 3);
+            {
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->y -= 1;
+            }
+            if (pointer->dir == 4);
+            {
+                create_beam(start, 1, pointer->x, pointer->y + 1);
+                pointer->dir = 3;
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->y -= 1;
+            }
+            pointer->len += 1;
+        }
+        else if (map[pointer->x][pointer->y] == '|')
+        {
+            if (pointer->dir == 2);
+            {
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->x += 1;
+            }
+            if (pointer->dir == 1);
+            {
+                create_beam(start, 4, pointer->x - 1, pointer->y);
+                pointer->dir = 2;
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->x += 1;
+            }
+            if (pointer->dir == 4);
+            {
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->x -= 1;
+            }
+            if (pointer->dir == 3);
+            {
+                create_beam(start, 4, pointer->x - 1, pointer->y);
+                pointer->dir = 2;
+                visited_map[pointer->x][pointer->y] == '1';
+                pointer->x += 1;
+            }
+            pointer->len += 1;
+        }
 
         if (!(pointer->next))
             pointer = start;
