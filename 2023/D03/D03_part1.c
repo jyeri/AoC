@@ -31,125 +31,135 @@
 // 2. only modify dots to 0, letters 1, symbols 2
 // 3. use same idea as above to count if some pair adds up to 3
 
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h> 
+#include <stdbool.h>
+#include <math.h>
 
-typedef struct
+#define MAX 15
+#define INF 9999
+
+// Need to revisit djikstras algorithm, pseudo code below
+// 
+// function dijkstra(G, S)
+//     for each vertex V in G
+//         distance[V] <- infinite
+//         previous[V] <- NULL
+//         If V != S, add V to Priority Queue Q
+//     distance[S] <- 0
+// 	
+//     while Q IS NOT EMPTY
+//         U <- Extract MIN from Q
+//         for each unvisited neighbour V of U
+//             tempDistance <- distance[U] + edge_weight(U, V)
+//             if tempDistance < distance[V]
+//                 distance[V] <- tempDistance
+//                 previous[V] <- U
+//     return distance[], previous[]
+
+int check_plus(char **map, int x, int y, int n, int m)
 {
-    int id;
-    int red;
-    int blue;
-    int green;
-} colors;
+    int i = 1;
+    if ((x + 1 < n) && (map[x + 1][y] == '+'))
+        return 1;
+    if ((x - 1 >= 0) && (map[x - 1][y] == '+'))
+        return 1;
+    if ((y + 1 < m) && (map[x][y + 1] == '+'))
+        return 1;
+    if ((x - 1 >= 0) && (map[x][y - 1] == '+'))
+        return 1;
+    if ((x - 1 >= 0) && (y - 1 >= 0) && (map[x - 1][y - 1] == '+'))
+        return 1;
+    if ((x - 1 >= 0) && (y + 1 < m) && (map[x - 1][y + 1] == '+'))
+        return 1;
+    if ((x + 1 < n) && (y - 1 >= 0) && (map[x + 1][y - 1] == '+'))
+        return 1;
+    if ((x + 1 < n) && (y + 1 < m) && (map[x + 1][y + 1] == '+'))
+        return 1;
+    return 0;
+    
 
-int getval(char *token, char *color)
-{
-    char    *pnt;
-    char    strclr[4];
-    int     val = 0;
-
-    pnt = strstr(token, color);
-    if (pnt)
-    {
-        sscanf(token, "%s ", strclr);
-        val = (int)strtol(strclr, NULL, 10);
-//        printf("val: %d\n", val);
-    }
-    return val;
 }
 
-char *removeid(char *str)
+void solve_map(char **map, int n, int start) 
 {
-    char *cp;
-    int x = 0;
     int i = 0;
+    int j = 0;
+    bool legit = false;
+    int m = 0;
+    int res = 0;
+    int tempres = 0;
 
-    cp = (char *)malloc(sizeof(char) * strlen(str) + 1);
-    while(str[x] != ':')
-        x++;
-    x += 2;
-    while(str[x])
+    m = strlen(map[0]);
+
+    while (i < n)
     {
-        cp[i] = str[x];
+        j = 0;
+        while (j < m)
+        {
+            while (isdigit(map[i][j]))
+            {
+                if (tempres > 0)
+                    tempres *= 10;
+                tempres += map[i][j] - '0';
+                if (check_plus(map, i, j, n, m) == 1)
+                    legit = true;
+                j++;
+            }
+            if (legit == true)
+                res += tempres;
+//            printf("res: %d\n", res);
+            tempres = 0;
+            legit = false;
+            j++;
+        }
         i++;
-        x++;
     }
-    cp[i] = '\0';
-    return cp;
+    printf("res: %d\n", res);
 
 }
 
-colors parser(int id, char *line)
+char *parser(char *line)
 {
-//    printf("\nworking on line: %s\n", line);
-    char *cpy;
-    char *afterid;
-    char *aftersemi;
-    colors new;
-    int mred = 0;
-    int cred = 0;
-    int mgre = 0;
-    int cgre = 0;
-    int mblu = 0;
-    int cblu = 0;
+    char *new;
+    int i = 0;
+    int n = strlen(line);
 
-    cpy = strdup(line);
-    char *token;
-    char *token2;
-    new.id = id + 1;
-
-	// Take off the 'Game x:' part.
-    cpy = removeid(cpy);
-//    printf("now: %s\n", cpy);
-    while ((token = strtok_r(cpy, ";", &cpy)) != NULL)
+    new = (char *)malloc(sizeof(char) * n + 1);
+    while (i < n)
     {
-//        printf("tok1: %s\n", token);
-        while ((token2 = strtok_r(token, ",", &token)) != NULL)
+        if(line[i] != '.')
         {
-//            printf("tok2: %s\n", token2);
-            if (strstr(token2, "red"))
-            {
-                cred = getval(token2, "red");
-                if (cred > mred)
-                {
-                    mred = cred;
-                }
-            }
-            if (strstr(token2, "green"))
-            {
-                cgre = getval(token2, "green");
-                if (cgre > mgre)
-                {
-                    mgre = cgre;
-                }
-            }
-            if (strstr(token2, "blue"))
-            {
-                cblu = getval(token2, "blue");
-                if (cblu > mblu)
-                {
-                    mblu = cblu;
-                }
-            }
+            if (isdigit(line[i]))
+                new[i] = line[i];
+            else if (isprint(line[i]))
+                new[i] = '+';
+            else
+                new[i] = line[i];
         }
+        else
+            new[i] = '.';
+        i++;
     }
-    new.red = mred;
-    new.green = mgre;
-    new.blue = mblu;
+    new[i] = '\0';
+//    printf("%s", new);
+
     return new;
 }
+
 
 int main(int argc, char **argv)
 {
     char    line[1024];
     FILE    *fptr;
-    char    values[2];
-    int     result = 0;
-    colors  clr[124];
+    long     result = 0;
+    int     current = 0;
+    long     total = 0;
+    char    *inst;
+    char    *map[141] = {0};
 
     if (argc < 2)
     {
@@ -164,12 +174,14 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        parser(current, line);
+        map[current] = parser(line);
+        current++;
     }
+//    printf("\n\n");
+    solve_map(map, current, 0);
+//    printf("%ld\n", result);
+//    printf ("%ld\n", total);
     fclose(fptr);
-    
-    printf("result: %d\n", result);
     return result;
  
 }
-
