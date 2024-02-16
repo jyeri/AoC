@@ -6,54 +6,97 @@
 #include <stdbool.h>
 #include <math.h>
 
+int tree[201][25];
+long result_final;
 
-int solve(int *line, int len)
+int extrapolate(int len, int x, int j)
+{
+    int i = 0;
+    int diff = 0;
+    int res = 0;
+    tree[x][j] = 0;
+//    printf ("\n\n\nx: %d, j: %d\n\n", x, j);
+    while (x > 0)
+    {
+        x--;
+        j++;
+//        printf("prev: %d, prev history: %d\n", tree[x][j - 1], tree[x + 1][j - 1]);
+        tree[x][j] = tree[x][j - 1] + tree[x + 1][j - 1];
+//        printf("tree[%d][%d]: %d\n", x, j, tree[x][j]);
+    }
+    res = tree[x][j];
+    printf("extrapolate return value: %d\n", res);
+    result_final += res;
+    return res;
+}
+
+int solve(int len, int x, int tree_len)
 {
     int res = 0;
     int i = 0;
     int diff = 0;
-    int *tree;
-    tree = (int *)malloc(sizeof(int) * len - 1);
+    int total = 0;
     bool    keep_going;
-    
+
     keep_going = false;
     while (i < len - 1)
     {
-        diff = line[i + 1] - line[i];
-        tree[i] = diff;
-        printf("line[%d]: %d, line[%d + 1]: %d, diff: %d\n", i, line[i], i, line[i + 1], diff);
+        diff = tree[x][i + 1] - tree[x][i];
+        tree[x + 1][i] = diff;
+//        printf("tree[%d][%d]: %d, tree[%d][%d + 1]: %d, diff: %d\n",x, i, tree[x][i],x, i, tree[x][i + 1], diff);
+//        printf("tree[%d + 1][%d]: %d\n", x, i, tree[x+1][i]);
         if (diff != 0 && keep_going == false)
             keep_going = true;
         i++;
     }
-    res += diff + line[i];
-    printf("\nres: %d\n", res);
+    x++;
+//    printf("\n\n");
     if (keep_going == true)
     {
-        solve(tree, i);
+        solve(i, x, tree_len);
     }
-    return res;
+    else
+        res = extrapolate(len, x, i);
+    if (res > total)
+        total = res;
+    return total;
 }
 
-int parseandsolve(char *line, int x)
+int parseandsolve(char *line)
 {
     char    *new;
     char    *tok1;
-    int     *parsed;
+    int     **parsed;
     int     i = 0;
     int     mode = 0;
     int     res = 0;
+    int     x = 0;
+    int     total = 0;
 
     new = strdup(line);
-    parsed = (int *)malloc(sizeof(int) * strlen(new));
     printf("%s\n", new);
     while ((tok1 = strtok_r(new, " ", &new)))
     {
-        parsed[i] = atoi(tok1);
-        printf("saved to parsed[%d]: %d\n", i, parsed[i]);
+        tree[x][i] = atoi(tok1);
         i++;
     }
-    res = solve(parsed, i);
+    int tree_len = i;
+    int print_len = i + 4;
+    solve(i, 0, tree_len);
+//    x = 0;
+//    i = 0;
+//    int j = 0;
+//    while(tree[x][j])
+//    {
+//        j = 0;
+//        while(j <= print_len)
+//        {
+//            printf("tree[%d][%d]: %d\n", x, j, tree[x][j]);
+//            j++;
+//            print_len--;
+//        }
+//        x++;
+//    }
     return res;
 }
 
@@ -82,13 +125,12 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        result = parseandsolve(line, current);
+        result = parseandsolve(line);
         total += result;
-        printf("RESULT OF %d: %ld\n", current, result);
-        printf("TOTALLING %ld\n", total);
         current++;
     }
 
+    printf("final: %ld\n", result_final);
     fclose(fptr);
     return result;
  
