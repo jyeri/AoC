@@ -6,85 +6,55 @@
 #include <stdbool.h>
 #include <math.h>
 
-long matrix[201][25];
-long tree[201][25];
 
-int len(long *str)
+int solve(int *line, int len)
 {
-    int x = 1;
-    while(str[x])
-    {
-        x++;
-    }
-    return x;
-}
-
-long solve(int limit)
-{
-    long diff = 0;
+    int res = 0;
     int i = 0;
-    int j = 0;
-    int k = 0;
-    long res = 0;
-    int x = 0;
-    bool still_digits = true;
-
-    while (x < limit)
+    int diff = 0;
+    int *tree;
+    tree = (int *)malloc(sizeof(int) * len - 1);
+    bool    keep_going;
+    
+    keep_going = false;
+    while (i < len - 1)
     {
-        while (matrix[x][i])
-        {
-            printf("matrix[%d][%d]: %ld\n", x, i, matrix[x][i]);
-            tree[j][k] = matrix[x][i];
-            printf("tree[%d][%d]: %ld\n", j, k, tree[j][k]);
-            i++;
-            k++;
-        }
-        k = 0;
-        still_digits = true;
-        while (still_digits == true)
-        {
-            while(tree[j][k])
-            {
-                tree[j + 1][k] = tree[j][k + 1] - tree[j][k];
-                diff = tree[j+1][k];
-                if (tree[j + 1][k] == 0 && k == len(tree[j]))
-                {
-                    still_digits = false;
-                }
-                k++;
-            }
-            res += (tree[j][k] + diff);
-            diff = 0;
-            k = 0;
-            j++;
-        }
-        
-//        printf("matrix[%d][%d]: %ld\n", x, i - 1, matrix[x][i - 1]);
-//        diff = matrix[x][i - 1] + diff;
-//        printf("diff: %ld\n", diff);
-//        res += diff;
-        x++;
+        diff = line[i + 1] - line[i];
+        tree[i] = diff;
+        printf("line[%d]: %d, line[%d + 1]: %d, diff: %d\n", i, line[i], i, line[i + 1], diff);
+        if (diff != 0 && keep_going == false)
+            keep_going = true;
+        i++;
     }
-    printf("res: %ld\n", res);
+    res += diff + line[i];
+    printf("\nres: %d\n", res);
+    if (keep_going == true)
+    {
+        solve(tree, i);
+    }
     return res;
 }
 
-int parser(char *line, int x)
+int parseandsolve(char *line, int x)
 {
-    char *new;
-    char *tok1;
-    int i = 0;
-    int mode = 0;
+    char    *new;
+    char    *tok1;
+    int     *parsed;
+    int     i = 0;
+    int     mode = 0;
+    int     res = 0;
 
     new = strdup(line);
-//    printf("%s\n", new);
+    parsed = (int *)malloc(sizeof(int) * strlen(new));
+    printf("%s\n", new);
     while ((tok1 = strtok_r(new, " ", &new)))
     {
-        matrix[x][i] = atoi(tok1);
-        printf("saved to matrix[%d][%d]: %ld\n", x, i, matrix[x][i]);
+        parsed[i] = atoi(tok1);
+        printf("saved to parsed[%d]: %d\n", i, parsed[i]);
         i++;
     }
-    return 0;
+    res = solve(parsed, i);
+    return res;
 }
 
 
@@ -95,6 +65,7 @@ int main(int argc, char **argv)
     long     result = 0;
     int     current = 0;
     long     total = 0;
+    int     len = 0;
     char    *inst;
     char    *map[300] = {0};
 
@@ -111,11 +82,13 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        parser(line, current);
+        result = parseandsolve(line, current);
+        total += result;
+        printf("RESULT OF %d: %ld\n", current, result);
+        printf("TOTALLING %ld\n", total);
         current++;
     }
 
-    result = solve(current - 1);
     fclose(fptr);
     return result;
  
