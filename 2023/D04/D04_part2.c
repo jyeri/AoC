@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <string.h> 
 
+int cards_bounty[197];
+
 void swap(int* xp, int* yp) 
 { 
     int temp = *xp; 
@@ -65,7 +67,7 @@ char *removeid(char *str)
 
 }
 
-int comparestrings(int *my, int *given)
+int comparestrings(int *my, int *given, int id)
 {
     selectionSort(my, 10);
     selectionSort(given, 25);
@@ -74,19 +76,31 @@ int comparestrings(int *my, int *given)
     int res = 0;
     int bounty = 1;
     int interval = 0;
+    int x = 1;
 
     while (my[i] && given[j])
     {
 //        printf("comparing my[%d]: %d = giv[%d]: %d\n", i, my[i], j, given[j]);
         if (my[i] == given[j])
         {
-            res += bounty;
-            interval++;
-            if (res > 1)
+            if (id + x < 197)
             {
-                bounty = bounty * 2;
-                interval = 0;
+                if (cards_bounty[id] > 1)
+                    cards_bounty[id + x] += cards_bounty[id];
+                else
+                    cards_bounty[id + x]++;
+//                printf("new copy of card: %d\n", id + x);
+//                printf("copy amount now: %d\n", cards_bounty[id + x]);
+                x++;
             }
+            
+//            res += bounty;
+//            interval++;
+//            if (res > 1)
+//            {
+//                bounty = bounty * 2;
+//                interval = 0;
+//            }
             i++;
             j++;
         }
@@ -97,13 +111,13 @@ int comparestrings(int *my, int *given)
         else
             i++;
     }
-//    printf("compare result: %d\n", res);
+    printf("compare result: %d\n", res);
     return res;
 }
 
-int parser(char *line)
+int parser(char *line, int current)
 {
-//    printf("\nworking on line: %s\n", line);
+    printf("\nworking on line: %s\n", line);
     char *cpy;
     char *afterid;
     char *aftersemi;
@@ -148,7 +162,8 @@ int parser(char *line)
             change++;
         }
     }
-    res = comparestrings(my, given);
+    cards_bounty[current]++;
+    res = comparestrings(my, given, current);
 
     return res;
 }
@@ -158,6 +173,7 @@ int main(int argc, char **argv)
     char    line[1024];
     FILE    *fptr;
     int     result = 0;
+    int     current = 0;
 
     if (argc < 2)
     {
@@ -172,10 +188,14 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        result += parser(line);
+        current++;
+        result += parser(line, current);
     }
     fclose(fptr);
-    
+    int i = 1;
+    result = 0;
+    while (i < 198)
+        result += cards_bounty[i++];
     printf("result: %d\n", result);
     return result;
  
