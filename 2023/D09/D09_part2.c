@@ -19,9 +19,9 @@ int extrapolate(int len, int x, int j)
     while (x > 0)
     {
         x--;
-        printf("prev: %d, prev history: %d\n", tree[x][j], tree[x + 1][j - 1]);
+//        printf("prev: %d, prev history: %d\n", tree[x][j], tree[x + 1][j - 1]);
         tree[x][j - 1] = (tree[x][j] - tree[x + 1][j - 1]);
-        printf("tree[%d][%d]: %d\n", x, j - 1, tree[x][j - 1]);
+//        printf("tree[%d][%d]: %d\n", x, j - 1, tree[x][j - 1]);
     }
     res = tree[x][j - 1];
     printf("extrapolate return value: %d\n", res);
@@ -50,7 +50,7 @@ int solve(int len, int x, int tree_len)
     }
 
     x++;
-    printf("\n\n");
+//    printf("\n\n");
     if (keep_going == true)
     {
         solve(len - 1, x, tree_len);
@@ -74,14 +74,14 @@ int parseandsolve(char *line)
     int     total = 0;
 
     new = strdup(line);
-    printf("%s\n", new);
+//    printf("%s\n", new);
     while ((tok1 = strtok_r(new, " ", &new)))
     {
         tree[x][i] = atoi(tok1);
-        printf("tree[%d][%d]: %d\n", x, i, tree[x][i]);
+//        printf("tree[%d][%d]: %d\n", x, i, tree[x][i]);
         i++;
     }
-    printf("\n\n");
+//    printf("\n\n");
     solve(i - 1, 0, i);
 //    x = 0;
 //    i = 0;
