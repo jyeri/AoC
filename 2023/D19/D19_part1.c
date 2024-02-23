@@ -19,6 +19,10 @@
 // then it could just something like global variable as rules *ruleset[2000]
 // we just have to also make sure that if destination is A or R we return accordingly instantly
 
+// biggest regret of the whole shit.
+// i did not realise that the input is mixed order -> rules are not following the x->m->a->s path
+// redo the input parse and add some kind of mechanig to check what rule is first to be checked.
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -27,8 +31,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-struct Rules *ruleset[2000];
+struct Rules *ruleset[100000];
 long result;
+int counter;
 
 typedef struct Rules
 {
@@ -54,28 +59,24 @@ typedef struct Rules
 } Rules;
 
 
-unsigned long hash(char *str)
+int hash(char *str)
 {
-	unsigned int hash = 0;
-	int c;
     if (strcmp(str, "A") == 0)
-    {
-//        printf("hash: 0\n");
         return 0;
-    }
     if (strcmp(str, "R") == 0)
+        return 99999;
+
+    unsigned int hash = 0;
+    while (*str != '\0')
     {
-//        printf("hash: 1999\n");
-        return 1999;
+        hash *= 25;
+        hash += (*str++);
     }
-    
-	while (*str++)
-    {
-        c = *str;
-	    hash += c;
-    }
-//    printf("hash: %d\n", hash);
-	return hash;
+    if (hash < 5000)
+        hash -= 2545;
+    else
+        hash -= 63200;
+    return hash;
 }
 
 void add_rule(char *str, int hashed)
@@ -187,32 +188,37 @@ void add_values(unsigned int index, char *str)
 
 void solve(int x, int m, int a, int s, int room)
 {
-    printf("WE ARE AT ROOM %d\n", room);
-    if(room == 1999)
+    if(room == 99999)
     {
-        printf("REJECTED\n");
+//        printf("REJECTED\n");
+        counter++;
         return;
     }
     else if(room == 0)
     {
         printf("ACCEPTED\n");
+        counter++;
+        printf("Accepted input: %d\n", counter);
         result += x;
         result += m;
         result += a;
         result += s;
+        printf("result is now: %ld\n", result);
         return;
     }
     else
     {
+        printf("WE ARE AT ROOM %s\n", ruleset[room]->name);
         while (1)
         {
             if (ruleset[room]->x_set == true)
             {
-                printf("XXX");
+                printf("x: %d, op: %c, rule x: %d\n", x, ruleset[room]->opx, ruleset[room]->x);
                 if (ruleset[room]->opx == '>')
                 {
                     if(x > ruleset[room]->x)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->dx);
                         return;
                     }
@@ -221,6 +227,7 @@ void solve(int x, int m, int a, int s, int room)
                 {
                     if(x < ruleset[room]->x)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->dx);
                         return;
                     }
@@ -228,11 +235,12 @@ void solve(int x, int m, int a, int s, int room)
             }
             if (ruleset[room]->m_set == true)
             {
-                printf("MMM");
+                printf("m: %d, op: %c, rule m: %d\n", m, ruleset[room]->opm, ruleset[room]->m);
                 if (ruleset[room]->opm == '>')
                 {
                     if(m > ruleset[room]->m)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->dm);
                         return;
                     }
@@ -241,6 +249,7 @@ void solve(int x, int m, int a, int s, int room)
                 {
                     if(m < ruleset[room]->m)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->dm);
                         return;
                     }
@@ -248,11 +257,12 @@ void solve(int x, int m, int a, int s, int room)
             }
             if (ruleset[room]->a_set == true)
             {
-                printf("AAA");
+                printf("a: %d, op: %c, rule a: %d\n", a, ruleset[room]->opa, ruleset[room]->a);
                 if (ruleset[room]->opa == '>')
                 {
                     if(a > ruleset[room]->a)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->da);
                         return;
                     }
@@ -261,6 +271,7 @@ void solve(int x, int m, int a, int s, int room)
                 {
                     if(a < ruleset[room]->a)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->da);
                         return;
                     }
@@ -268,11 +279,12 @@ void solve(int x, int m, int a, int s, int room)
             }
             if (ruleset[room]->s_set == true)
             {
-                printf("SSS");
+                printf("s: %d, op: %c, rule s: %d\n", s, ruleset[room]->ops, ruleset[room]->s);
                 if (ruleset[room]->ops == '>')
                 {
                     if(s > ruleset[room]->s)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->ds);
                         return;
                     }
@@ -281,11 +293,13 @@ void solve(int x, int m, int a, int s, int room)
                 {
                     if(s < ruleset[room]->s)
                     {
+                        printf("TRUE\n");
                         solve(x, m, a, s, ruleset[room]->ds);
                         return;
                     }
                 }
             }
+            printf("ALL FALSE\n");
             solve(x, m, a, s, ruleset[room]->finald);
             return;
         }
@@ -298,7 +312,6 @@ int parser(char *line, int phase)
     char *token;
     char *token2;
     int hashed = 0;
-    int res = 0;
     int counter = 0;
     int i = 0;
     int x = 0;
@@ -318,7 +331,6 @@ int parser(char *line, int phase)
         while ((token = (strtok_r(line, "{", &line))) != NULL)
         {
             hashed = hash(token);
-            printf("ROOM: %s - %d\n", token, hashed);
             add_rule(token, hashed);
             while((token2 = (strtok_r(line, ",", &line))) != NULL)
             {
@@ -373,6 +385,7 @@ int main(int argc, char **argv)
     int     current = 0;
     long     total = 0;
     int     phase = 0;
+    counter = 0;
 
     if (argc < 2)
     {
