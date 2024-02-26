@@ -54,6 +54,11 @@ typedef struct Rules
     int dm;
     int da;
     int ds;
+    int order_x;
+    int order_m;
+    int order_a;
+    int order_s;
+    int rule_amount;
     int finald;
 
 } Rules;
@@ -88,10 +93,14 @@ void add_rule(char *str, int hashed)
     new->m_set = false;
     new->a_set = false;
     new->s_set = false;
+    new->order_x = INT8_MAX;
+    new->order_m = INT8_MAX;
+    new->order_a = INT8_MAX;
+    new->order_s = INT8_MAX;
     ruleset[hashed] = new;
 }
 
-void add_values(unsigned int index, char *str)
+void add_values(unsigned int index, char *str, int order_num)
 {
     char *token;
     char *token2;
@@ -107,6 +116,7 @@ void add_values(unsigned int index, char *str)
                 ruleset[index]->opx = token[1];
                 ruleset[index]->x = atoi(&token[2]);
                 ruleset[index]->x_set = true;
+                ruleset[index]->order_x = order_num;
             }
             if(token[0] == 'm')
             {
@@ -114,6 +124,7 @@ void add_values(unsigned int index, char *str)
                 ruleset[index]->opm = token[1];
                 ruleset[index]->m = atoi(&token[2]);
                 ruleset[index]->m_set = true;
+                ruleset[index]->order_m = order_num;
             }
             if(token[0] == 'a')
             {
@@ -121,6 +132,7 @@ void add_values(unsigned int index, char *str)
                 ruleset[index]->opa = token[1];
                 ruleset[index]->a = atoi(&token[2]);
                 ruleset[index]->a_set = true;
+                ruleset[index]->order_a = order_num;
             }
             if(token[0] == 's')
             {
@@ -128,6 +140,7 @@ void add_values(unsigned int index, char *str)
                 ruleset[index]->ops = token[1];
                 ruleset[index]->s = atoi(&token[2]);
                 ruleset[index]->s_set = true;
+                ruleset[index]->order_s = order_num;
             }
         }
         else if (happy > 0)
@@ -145,6 +158,7 @@ void add_values(unsigned int index, char *str)
         else
         {
             ruleset[index]->finald = hash(strtok(token, "}"));
+            ruleset[index]->rule_amount = order_num;
             break;
         }
     }
@@ -188,6 +202,8 @@ void add_values(unsigned int index, char *str)
 
 void solve(int x, int m, int a, int s, int room)
 {
+    int rule_nm = 0;
+    int i = 0;
     if(room == 99999)
     {
 //        printf("REJECTED\n");
@@ -211,93 +227,102 @@ void solve(int x, int m, int a, int s, int room)
         printf("WE ARE AT ROOM %s\n", ruleset[room]->name);
         while (1)
         {
-            if (ruleset[room]->x_set == true)
+            printf("ruleamount: %d\n", ruleset[room]->rule_amount);
+            printf("ruleorder_x: %d\n", ruleset[room]->order_x);
+            printf("ruleorder_m: %d\n", ruleset[room]->order_m);
+            printf("ruleorder_a: %d\n", ruleset[room]->order_a);
+            printf("ruleorder_s: %d\n", ruleset[room]->order_s);
+            while(rule_nm < ruleset[room]->rule_amount)
             {
-                printf("x: %d, op: %c, rule x: %d\n", x, ruleset[room]->opx, ruleset[room]->x);
-                if (ruleset[room]->opx == '>')
+                if (ruleset[room]->x_set == true && ruleset[room]->order_x == rule_nm)
                 {
-                    if(x > ruleset[room]->x)
+                    printf("x: %d, op: %c, rule x: %d\n", x, ruleset[room]->opx, ruleset[room]->x);
+                    if (ruleset[room]->opx == '>')
                     {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->dx);
-                        return;
+                        if(x > ruleset[room]->x)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->dx);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if(x < ruleset[room]->x)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->dx);
+                            return;
+                        }
                     }
                 }
-                else
+                else if (ruleset[room]->m_set == true && ruleset[room]->order_m == rule_nm)
                 {
-                    if(x < ruleset[room]->x)
+                    printf("m: %d, op: %c, rule m: %d\n", m, ruleset[room]->opm, ruleset[room]->m);
+                    if (ruleset[room]->opm == '>')
                     {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->dx);
-                        return;
+                        if(m > ruleset[room]->m)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->dm);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if(m < ruleset[room]->m)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->dm);
+                            return;
+                        }
                     }
                 }
-            }
-            if (ruleset[room]->m_set == true)
-            {
-                printf("m: %d, op: %c, rule m: %d\n", m, ruleset[room]->opm, ruleset[room]->m);
-                if (ruleset[room]->opm == '>')
+                else if (ruleset[room]->a_set == true && ruleset[room]->order_a == rule_nm)
                 {
-                    if(m > ruleset[room]->m)
+                    printf("a: %d, op: %c, rule a: %d\n", a, ruleset[room]->opa, ruleset[room]->a);
+                    if (ruleset[room]->opa == '>')
                     {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->dm);
-                        return;
+                        if(a > ruleset[room]->a)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->da);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if(a < ruleset[room]->a)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->da);
+                            return;
+                        }
                     }
                 }
-                else
+                else if (ruleset[room]->s_set == true && ruleset[room]->order_s == rule_nm)
                 {
-                    if(m < ruleset[room]->m)
+                    printf("s: %d, op: %c, rule s: %d\n", s, ruleset[room]->ops, ruleset[room]->s);
+                    if (ruleset[room]->ops == '>')
                     {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->dm);
-                        return;
+                        if(s > ruleset[room]->s)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->ds);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if(s < ruleset[room]->s)
+                        {
+                            printf("TRUE\n");
+                            solve(x, m, a, s, ruleset[room]->ds);
+                            return;
+                        }
                     }
                 }
-            }
-            if (ruleset[room]->a_set == true)
-            {
-                printf("a: %d, op: %c, rule a: %d\n", a, ruleset[room]->opa, ruleset[room]->a);
-                if (ruleset[room]->opa == '>')
-                {
-                    if(a > ruleset[room]->a)
-                    {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->da);
-                        return;
-                    }
-                }
-                else
-                {
-                    if(a < ruleset[room]->a)
-                    {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->da);
-                        return;
-                    }
-                }
-            }
-            if (ruleset[room]->s_set == true)
-            {
-                printf("s: %d, op: %c, rule s: %d\n", s, ruleset[room]->ops, ruleset[room]->s);
-                if (ruleset[room]->ops == '>')
-                {
-                    if(s > ruleset[room]->s)
-                    {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->ds);
-                        return;
-                    }
-                }
-                else
-                {
-                    if(s < ruleset[room]->s)
-                    {
-                        printf("TRUE\n");
-                        solve(x, m, a, s, ruleset[room]->ds);
-                        return;
-                    }
-                }
+                rule_nm++;
             }
             printf("ALL FALSE\n");
             solve(x, m, a, s, ruleset[room]->finald);
@@ -318,6 +343,7 @@ int parser(char *line, int phase)
     int m = 0;
     int a = 0;
     int s = 0;
+    int order_num = 0;
 
     new = strdup(line);
 //    printf("%s", new);
@@ -334,8 +360,9 @@ int parser(char *line, int phase)
             add_rule(token, hashed);
             while((token2 = (strtok_r(line, ",", &line))) != NULL)
             {
-//                printf("token2: %s\n", token2);
-                add_values(hashed, token2);
+                printf("token2: %s\n", token2);
+                add_values(hashed, token2, order_num);
+                order_num++;
             }
         }
     }
