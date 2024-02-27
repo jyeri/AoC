@@ -70,9 +70,11 @@
 
 // this is the full rotation
 
-
-
-
+// we are trying to count every time pulse is sent, either LOW or HIGH
+// optimally we could save the start stage of all switches, and instead of going 8000 rounds
+// -> when we are back to starting position (all low??)
+// -> divide 8000 / rotation_length * pulses sent per rotation
+// -> we should have to check all rotations just one full
 
 
 
