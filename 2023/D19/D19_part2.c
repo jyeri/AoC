@@ -163,10 +163,10 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
         printf("ms: %d - me: %d\n", ms, me);
         printf("as: %d - ae: %d\n", as, ae);
         printf("ss: %d - se: %d\n", ss, se);
-        resx = xe - xs;
-        resm = me - ms;
-        resa = ae - as;
-        ress = se - ss;
+        resx = xe - xs + 1;
+        resm = me - ms + 1;
+        resa = ae - as + 1;
+        ress = se - ss + 1;
         res = resx * resm * resa * ress;
         result += res;
         printf("result is now: %lld\n", result);
@@ -185,7 +185,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (xe > roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(roomarray[room]->rules[rule_nm]->value + 1, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, roomarray[room]->rules[rule_nm]->value, ms, me, as, ae, ss, se, room);
                         return;
                     }
@@ -194,7 +194,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (me > roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, xe, roomarray[room]->rules[rule_nm]->value + 1, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, xe, ms, roomarray[room]->rules[rule_nm]->value, as, ae, ss, se, room);
                         return;
                     }
@@ -203,7 +203,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (ae > roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, xe, ms, me, roomarray[room]->rules[rule_nm]->value + 1, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, xe, ms, me, as, roomarray[room]->rules[rule_nm]->value, ss, se, room);
                         return;
                     }
@@ -212,7 +212,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (se > roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, xe, ms, me, as, ae, roomarray[room]->rules[rule_nm]->value + 1, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, xe, ms, me, as, ae, ss, roomarray[room]->rules[rule_nm]->value, room);
                         return;
                     }
@@ -224,7 +224,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (xs < roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, roomarray[room]->rules[rule_nm]->value -1, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(roomarray[room]->rules[rule_nm]->value, xe, ms, me, as, ae, ss, se, room);
                         return;
                     }
@@ -233,7 +233,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (ms < roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, xe, ms, roomarray[room]->rules[rule_nm]->value - 1, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, xe, roomarray[room]->rules[rule_nm]->value, me, as, ae, ss, se, room);
                         return;
                     }
@@ -242,7 +242,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (as < roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, xe, ms, me, as, roomarray[room]->rules[rule_nm]->value - 1, ss, se, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, xe, ms, me, roomarray[room]->rules[rule_nm]->value, ae, ss, se, room);
                         return;
                     }
@@ -251,7 +251,7 @@ void solve(int xs, int xe, int ms, int me, int as, int ae, int ss, int se, int r
                 {
                     if (ss < roomarray[room]->rules[rule_nm]->value)
                     {
-                        solve(xs, xe, ms, me, as, ae, ss, se, roomarray[room]->rules[rule_nm]->dest);
+                        solve(xs, xe, ms, me, as, ae, ss, roomarray[room]->rules[rule_nm]->value - 1, roomarray[room]->rules[rule_nm]->dest);
                         solve(xs, xe, ms, me, as, ae, roomarray[room]->rules[rule_nm]->value, se, room);
                         return;
                     }
