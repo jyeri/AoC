@@ -76,8 +76,8 @@
 // -> divide 8000 / rotation_length * pulses sent per rotation
 // -> we should have to check all rotations just one full
 
-
-
+// we must use queue?
+// -> ill implement simple array queue
 
 #include <stdio.h>
 #include <unistd.h>
@@ -86,21 +86,105 @@
 #include <string.h> 
 #include <stdbool.h>
 #include <math.h>
+#include <limits.h>
+
+typedef struct module
+{
+    char *name;
+    char type;
+    int hash;
+    char *destinations[10];
+    int dc;
+} module;
+
+struct Queue 
+{
+    int front;
+    int rear;
+    int size;
+    unsigned capacity;
+    module *array;
+};
+
+// function to create a queue
+// with init size 0
+// in this case i will use too larde capacity just to be sure
+struct Queue* make_queue(unsigned capacity)
+{
+    struct Queue* queue;
+    queue = (struct Queue*)malloc(sizeof(struct Queue));
+    queue->capacity = capacity;
+    queue->front = 0;
+    queue->size = 0;
+ 
+    queue->rear = capacity - 1;
+    queue->array = (module *)malloc(queue->capacity * sizeof(module));
+    return queue;
+}
+ 
+ // check if queue is full, idk if needed
+int isFull(struct Queue *queue)
+{
+    return (queue->size == queue->capacity);
+}
+ 
+// Check if there is something in queue
+int isEmpty(struct Queue* queue)
+{
+    return (queue->size == 0);
+}
+ 
+// Function to add an item to the queue.
+// It changes rear and size
+void enqueue(struct Queue* queue, module *item)
+{
+    if (isFull(queue))
+        return;
+    queue->rear = (queue->rear + 1) % queue->capacity;
+    queue->array[queue->rear] = *item;
+    queue->size = queue->size + 1;
+    printf("%s enqueued to queue\n", item->name);
+}
+ 
+// Function to remove an item from queue.
+// It changes front and size
+module *dequeue(struct Queue* queue)
+{
+    module *new;
+    if (isEmpty(queue))
+        return NULL;
+    *new = queue->array[queue->front];
+    queue->front = (queue->front + 1)
+                   % queue->capacity;
+    queue->size = queue->size - 1;
+    return new;
+}
+ 
+// Function to get front of queue
+module *front(struct Queue* queue)
+{
+    if (isEmpty(queue))
+        return NULL;
+    return &queue->array[queue->front];
+}
+ 
+// Function to get rear of queue
+module *rear(struct Queue* queue)
+{
+    if (isEmpty(queue))
+        return NULL;
+    return &queue->array[queue->rear];
+}
 
 long long result;
-
-typedef struct Rule
-{
-    char    c;
-
-} Rule;
+module *thearray[100000];
 
 
 int hash(char *str)
 {
-    if (strcmp(str, "A") == 0)
+    if (strcmp(str, "roadcaster") == 0)
         return 0;
-    if (strcmp(str, "R") == 0)
+    if (strcmp(str, "output") == 0)
         return 99999;
 
     unsigned int hash = 0;
@@ -116,29 +200,68 @@ int hash(char *str)
     return hash;
 }
 
-void solve(int x, int m, int a, int s, int room)
+void solve()
 {
+    struct Queue *q;
+    q = make_queue(1000);
+    enqueue(q, thearray[0]);
+
+    while(q)
+    {
+        
+    }
 
 }
 
-int parser(char *line, int phase)
+void make_room(char *name, int hashed)
+{
+    module *new;
+    new = (module *)malloc(sizeof(module));
+    new->name = strdup(&name[1]);
+    new->hash = hashed;
+    new->type = name[0];
+    new->dc = 0;
+
+    thearray[hashed] = new;
+}
+
+void add_destinations(char *name, int index)
+{
+    thearray[index]->destinations[thearray[index]->dc] = strdup(name);
+    thearray[index]->dc++;
+    printf("Added thearray[%d] - %s destination: %s\n", index, thearray[index]->name, thearray[index]->destinations[thearray[index]->dc - 1]);
+}
+
+int parser(char *line)
 {
     char *new;
     char *token;
     char *token2;
     int hashed = 0;
+    int phase = 0;
 
     new = strdup(line);
     printf("%s", new);
 
-    while ((token = (strtok_r(line, "{", &line))) != NULL)
+    while((token = (strtok_r(line, " -> ", &line))) != NULL)
     {
-        hashed = hash(token);
-        while((token2 = (strtok_r(line, ",", &line))) != NULL)
+        if(phase == 0)
         {
-
+            printf("token 1st phase: %s\n", token);
+            hashed = hash(&token[1]);
+            make_room(token, hashed);
+            phase++;
+        }
+        else
+        {
+            while((token2 = (strtok_r(token, ",", &token))) != NULL)
+            {
+                printf("token 2nd phase: %s\n", token2);
+                add_destinations(token2, hashed);
+            }
         }
     }
+    return 0;
 }
 
 
@@ -149,6 +272,7 @@ int main(int argc, char **argv)
     int     current = 0;
     long     total = 0;
     int     phase = 0;
+    result = 0;
 
     if (argc < 2)
     {
@@ -163,11 +287,12 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        phase = parser(line, phase);
+        phase = parser(line);
         current++;;
     }
+    solve();
 //    printf("\n\n");
-    printf("%ld\n", result);
+    printf("%lld\n", result);
 //    printf ("%ld\n", total);
     fclose(fptr);
     return result;
