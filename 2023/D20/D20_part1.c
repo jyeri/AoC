@@ -94,7 +94,10 @@ typedef struct module
     char type;
     int hash;
     char *destinations[10];
+    int switches[10];
     int dc;
+    int pulse;
+
 } module;
 
 struct Queue 
@@ -116,7 +119,6 @@ struct Queue* make_queue(unsigned capacity)
     queue->capacity = capacity;
     queue->front = 0;
     queue->size = 0;
- 
     queue->rear = capacity - 1;
     queue->array = (module *)malloc(queue->capacity * sizeof(module));
     return queue;
@@ -148,16 +150,12 @@ void enqueue(struct Queue* queue, module *item)
  
 // Function to remove an item from queue.
 // It changes front and size
-module *dequeue(struct Queue* queue)
+void dequeue(struct Queue* queue)
 {
-    module *new;
     if (isEmpty(queue))
-        return NULL;
-    *new = queue->array[queue->front];
-    queue->front = (queue->front + 1)
-                   % queue->capacity;
+        return ;
+    queue->front = (queue->front + 1) % queue->capacity;
     queue->size = queue->size - 1;
-    return new;
 }
  
 // Function to get front of queue
@@ -176,39 +174,77 @@ module *rear(struct Queue* queue)
     return &queue->array[queue->rear];
 }
 
-long long result;
+int result[2];
 module *thearray[100000];
 
 
 int hash(char *str)
 {
+    unsigned int hash = 0;
+	int x = 0;
+    int i = 0;
     if (strcmp(str, "roadcaster") == 0)
         return 0;
     if (strcmp(str, "output") == 0)
         return 99999;
-
-    unsigned int hash = 0;
-    while (*str != '\0')
+	while (str[i])
     {
-        hash *= 25;
-        hash += (*str++);
+        if (str[i] == '\n' || str[i] == '\0')
+            return hash;
+        else
+        {
+            hash += str[i];
+            hash += 45;
+        }
+        i++;
     }
-    if (hash < 5000)
-        hash -= 2545;
-    else
-        hash -= 63200;
-    return hash;
+	return hash;
 }
 
-void solve()
+void send_pulse(module *qp, int pulse, int target)
 {
+    result[pulse]++;
+}
+
+void solve(int i)
+{
+    int x = 0;
+    int target = 0;
     struct Queue *q;
+    struct module *qp;
+
     q = make_queue(1000);
     enqueue(q, thearray[0]);
-
-    while(q)
+    result[0] += 1;
+    while (i)
     {
-        
+        while(q)
+        {
+            qp = front(q);
+            printf("took from que: %s\n", qp->name);
+            if (qp->type == '%')
+            {
+                
+            }
+            else if (qp->type == '&')
+            {
+
+            }
+            else
+            {
+                while(x < qp->dc)
+                {
+                    qp->pulse = 0;
+                    target = hash(qp->destinations[x]);
+                    printf("sending pulse to: %s - %d\n", thearray[target]->name, target);
+                    send_pulse(qp, qp->pulse, target);
+                    enqueue(q, thearray[target]);
+                    x++;
+                }
+            }
+            dequeue(q);
+        }
+    i--;
     }
 
 }
@@ -223,13 +259,18 @@ void make_room(char *name, int hashed)
     new->dc = 0;
 
     thearray[hashed] = new;
+    printf("New room was made to thearray[%d], called: %s\n", hashed, new->name);
 }
 
 void add_destinations(char *name, int index)
 {
+    char *copy;
+
     thearray[index]->destinations[thearray[index]->dc] = strdup(name);
+    thearray[index]->switches[thearray[index]->dc] = -1;
     thearray[index]->dc++;
-    printf("Added thearray[%d] - %s destination: %s\n", index, thearray[index]->name, thearray[index]->destinations[thearray[index]->dc - 1]);
+    printf("Added thearray[%d] - %s destination: %s - %d\n", index, thearray[index]->name, thearray[index]->destinations[thearray[index]->dc - 1], hash(thearray[index]->destinations[thearray[index]->dc - 1]));
+    printf("Its on prosition %d\n", thearray[index]->dc - 1);
 }
 
 int parser(char *line)
@@ -254,6 +295,7 @@ int parser(char *line)
         }
         else
         {
+            printf("\n");
             while((token2 = (strtok_r(token, ",", &token))) != NULL)
             {
                 printf("token 2nd phase: %s\n", token2);
@@ -272,7 +314,8 @@ int main(int argc, char **argv)
     int     current = 0;
     long     total = 0;
     int     phase = 0;
-    result = 0;
+    result[0] = 0;
+    result[1] = 0;
 
     if (argc < 2)
     {
@@ -290,11 +333,11 @@ int main(int argc, char **argv)
         phase = parser(line);
         current++;;
     }
-    solve();
+    solve(1);
 //    printf("\n\n");
-    printf("%lld\n", result);
+    printf("low: %d high: %d, totals: %d\n", result[0], result[1], result[0] + result[1]);
 //    printf ("%ld\n", total);
     fclose(fptr);
-    return result;
+    return 0;
  
 }
