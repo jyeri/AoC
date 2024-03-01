@@ -93,11 +93,14 @@ typedef struct module
     char *name;
     char type;
     int hash;
+    char *recieved_name_list[10];
+    char *recieved_pulse_list[10];
+    char *prev;
+    int *switches[10];
+    int r_pulse;
     char *destinations[10];
-    int switches[10];
-    int prev_pulse;
     int dc;
-    int pulse;
+    int d_pulse;
 
 } module;
 
@@ -202,15 +205,59 @@ int hash(char *str)
 	return hash;
 }
 
-void send_pulse(module *qp, int pulse, int target)
+void send_pulse(module *qp, int target)
 {
-    result[pulse]++;
-    if (thearray[target]->type == '%')
+    int i = 0;
+    bool found;
+
+    found = false;
+    if (qp->type == '%')
     {
-        if (pulse == 0)
+        while (qp->recieved_name_list[i])
         {
-            thearray[target]->switches[0] *= -1;
-            thearray[target]->prev_pulse = pulse;
+            if (strcmp(qp->recieved_name_list[i], qp->prev))
+            {
+                found = true;
+                break;
+            }
+            i++;
+        }
+        if (found == false)
+        {
+            qp->recieved_name_list[i] = strdup(qp->prev);
+            qp->recieved_pulse_list[i] = qp->r_pulse;
+        }
+        if (qp->r_pulse == 0)
+        {
+            qp->switches[i] *= -1;
+        }
+    }
+    else if (qp->type == '&')
+    {
+
+    }
+    else
+    {
+        qp->d_pulse = qp->r_pulse;
+        thearray[target]->r_pulse = qp->d_pulse;
+        thearray[target]->prev = strdup(qp->name);
+        i = 0;
+        if (thearray[target]->recieved_name_list[i])
+        {
+            while(thearray[target]->recieved_name_list[i])
+            {
+                if (strcmp(thearray[target]->recieved_name_list[i], qp->name))
+                {
+                    thearray[target]->recieved_pulse_list[i] = qp->d_pulse;
+                    break;
+                }
+                i++;
+            }
+        }
+        else
+        {
+            thearray[target]->recieved_name_list[i] = strdup(qp->name);
+            thearray[target]->recieved_pulse_list[i] = qp->d_pulse;
         }
     }
 }
@@ -232,32 +279,12 @@ void solve(int i)
         {
             qp = front(q);
             x = 0;
+            target = -1;
             printf("took from que: %s\n", qp->name);
-            if (qp->type == '%')
+            while(x < qp->dc)
             {
-                while (x < qp->dc)
-                {
-                    qp->pulse = prev_pulse;
-                    target = hash(qp->destinations[x]);
-                    send_pulse(qp, prev_pulse, target);
-                    x++;
-                }
-            }
-            else if (qp->type == '&')
-            {
-
-            }
-            else
-            {
-                while(x < qp->dc)
-                {
-                    qp->pulse = 0;
-                    target = hash(qp->destinations[x]);
-                    printf("sending pulse to: %s - %d\n", thearray[target]->name, target);
-                    send_pulse(qp, qp->pulse, target);
-                    enqueue(q, thearray[target]);
-                    x++;
-                }
+                target = qp->destinations[x];
+                send_pulse(qp, target);
             }
             dequeue(q);
         }
@@ -269,14 +296,18 @@ void solve(int i)
 void make_room(char *name, int hashed)
 {
     module *new;
+    int x = 0;
     new = (module *)malloc(sizeof(module));
     new->name = strdup(&name[1]);
     new->hash = hashed;
     new->type = name[0];
     new->dc = 0;
-    new->prev_pulse = -1;
-    new->switches[0] = -1;
-
+    new->r_pulse = 0;
+    while (x < 10)
+    {
+        new->switches[x] = -1;
+        x++;
+    }
     thearray[hashed] = new;
     printf("New room was made to thearray[%d], called: %s\n", hashed, new->name);
 }
@@ -350,7 +381,7 @@ int main(int argc, char **argv)
     while (fgets(line, sizeof(line), fptr))
     {
         phase = parser(line);
-        current++;;
+        current++;
     }
     solve(1);
 //    printf("\n\n");

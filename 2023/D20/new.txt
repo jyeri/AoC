@@ -1,0 +1,17 @@
+% module
+- switch on / off
+- type of pulse recieved
+- list of destinations
+- type of pulse going out?
+-> changes type of pulse accordingly
+
+& module
+- list of recieved pulses
+- switch for each var in this list
+- list of destinations
+-> changes type of pulse accordingly
+
+Broadcaster
+- take pulse
+- list of destinations
+- send pulse
