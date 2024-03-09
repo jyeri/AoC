@@ -15,3 +15,19 @@ Broadcaster
 - take pulse
 - list of destinations
 - send pulse
+
+Flip-flop modules (prefix %) are either on or off; 
+they are initially off. 
+If a flip-flop module receives a high pulse, 
+it is ignored and nothing happens. 
+However, if a flip-flop module receives a low pulse, it flips between on and off. 
+If it was off, it turns on and sends a high pulse. 
+If it was on, it turns off and sends a low pulse.
+
+Conjunction modules (prefix &) remember the type of the most recent pulse 
+received from each of their connected input modules; 
+they initially default to remembering a low pulse for each input. 
+When a pulse is received, the conjunction module first updates its memory 
+for that input.
+Then, if it remembers high pulses for all inputs, it sends a low pulse; 
+otherwise, it sends a high pulse.

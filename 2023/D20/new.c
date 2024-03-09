@@ -95,8 +95,10 @@ typedef struct module
     char    type;
     int     d_pulse;
     int     d_count;
+    int     r_count;
     char    *destinations[10];
     int     r_pulse[10];
+    char    *recieved[10];
     int     switches[10];
 
 } module;
@@ -106,7 +108,7 @@ struct Queue
     int front;
     int rear;
     int size;
-    unsigned capacity;
+    int capacity;
     module *array;
 };
 
@@ -135,26 +137,33 @@ int isFull(struct Queue *queue)
 }
  
 // Check if there is something in queue
-int isEmpty(struct Queue* queue)
+int isEmpty(struct Queue *queue)
 {
     return (queue->size == 0);
 }
  
 // Function to add an item to the queue.
 // It changes rear and size
-void enqueue(struct Queue* queue, module *item)
+void enqueue(struct Queue *queue, module *item)
 {
     if (isFull(queue))
         return;
     queue->rear = (queue->rear + 1) % queue->capacity;
     queue->array[queue->rear] = *item;
     queue->size = queue->size + 1;
-    printf("%s enqueued to queue\n", item->name);
+    printf("%s enqueued to queue\n", queue->array[queue->rear].name);
+}
+
+module *frontq(struct Queue *queue)
+{
+    if (isEmpty(queue))
+        return NULL;
+    return &queue->array[queue->front];
 }
  
 // Function to remove an item from queue.
 // It changes front and size
-void dequeue(struct Queue* queue)
+void dequeue(struct Queue *queue)
 {
     if (isEmpty(queue))
         return ;
@@ -166,7 +175,6 @@ void dequeue(struct Queue* queue)
 int hash(char *str)
 {
     unsigned int hash = 0;
-	int x = 0;
     int i = 0;
     if (strcmp(str, "roadcaster") == 0)
         return 0;
@@ -186,18 +194,121 @@ int hash(char *str)
 	return hash;
 }
 
-void send_pulse(module *qp, int target)
+int in_rlist(int target, char *name)
 {
+    int i;
+    bool found;
 
+    found = false;
+    i = 0;
+    while (i < thearray[target]->r_count)
+    {
+        if (strcmp(thearray[target]->recieved[i], name) == 0)
+        {
+            found = true;
+            break;
+        }
+        i++;
+    }
+    if (found == false)
+    {
+        thearray[target]->recieved[i] = strdup(name);
+        thearray[target]->r_count++;
+    }
+    return i;
 }
 
-void solve(int i)
+void send_pulse(struct Queue *q, module *qp)
 {
     int x;
+    int target;
+    int index;
 
+    index = 0;
+    target = 0;
     x = 0;
-    
-    exit(-1);
+    if (qp->type == '%')
+    {
+        if(qp->switches[0] == -1)
+            qp->d_pulse == 1;
+        else
+            qp->d_pulse == 0;
+        while (x < qp->d_count)
+        {
+            target = hash(qp->destinations[x]);
+            result[qp->d_pulse]++;
+            if (thearray[target]->type == '%')
+            {
+                if(qp->d_pulse == 0)
+                {
+                    thearray[target]->r_count = 1;
+                    thearray[target]->switches[0] *= -1;
+                    enqueue(q, thearray[target]);
+                }
+            }
+            else if (thearray[target]->type == '&')
+            {
+                index = in_rlist(target, qp->name);
+                thearray[target]->r_pulse[index] = qp->d_pulse;
+                enqueue(q, thearray[target]);
+            }
+            else
+            {
+                enqueue(q, thearray[target]);
+            }
+            x++;
+        }
+    }
+    else if (qp->type == '&')
+    {
+        
+    }
+    else
+    {
+        while (x < qp->d_count)
+        {
+            target = hash(qp->destinations[x]);
+            result[qp->d_pulse]++;
+            if (thearray[target]->type == '%')
+            {
+                if(qp->d_pulse == 0)
+                {
+                    thearray[target]->r_count = 1;
+                    thearray[target]->switches[0] *= -1;
+                    enqueue(q, thearray[target]);
+                }
+            }
+            else if (thearray[target]->type == '&')
+            {
+                index = in_rlist(target, qp->name);
+                thearray[target]->r_pulse[index] = qp->d_pulse;
+                enqueue(q, thearray[target]);
+            }
+            else
+            {
+                enqueue(q, thearray[target]);
+            }
+            x++;
+        }
+    }
+}
+
+void solve()
+{
+    printf("\n\n SOLVE PART BELOVE:\n\n");
+    struct Queue *q;
+    module *qp;
+
+    q = make_queue(10);
+    qp = thearray[0];
+    enqueue(q, qp);
+    while (q)
+    {
+        qp = frontq(q);
+        printf("qp from que is %s\n", qp->name);
+        send_pulse(q, qp);
+    }
+
 }
 
 void make_room(char *name, int hashed)
@@ -210,9 +321,11 @@ void make_room(char *name, int hashed)
     new->type = name[0];
     new->d_pulse = 0;
     new->d_count = 0;
+    new->r_count = 0;
     while (x < 10)
     {
         new->destinations[x] = NULL;
+        new->recieved[x] = NULL;
         new->r_pulse[x] = 0;
         new->switches[x] = -1;
         x++;
@@ -223,8 +336,6 @@ void make_room(char *name, int hashed)
 
 void add_destinations(char *name, int index)
 {
-    char *copy;
-
     thearray[index]->destinations[thearray[index]->d_count] = strdup(name);
     thearray[index]->d_count++;
     printf("Added thearray[%d] - %s destination: %s - %d\n", index, thearray[index]->name, thearray[index]->destinations[thearray[index]->d_count - 1], hash(thearray[index]->destinations[thearray[index]->d_count - 1]));
@@ -267,9 +378,6 @@ int main(int argc, char **argv)
 {
     char    line[1024];
     FILE    *fptr;
-    int     current = 0;
-    long     total = 0;
-    int     phase = 0;
     result[0] = 0;
     result[1] = 0;
 
@@ -286,10 +394,9 @@ int main(int argc, char **argv)
     }
     while (fgets(line, sizeof(line), fptr))
     {
-        phase = parser(line);
-        current++;
+        parser(line);
     }
-    solve(1);
+    solve();
     fclose(fptr);
     return 0;
  
