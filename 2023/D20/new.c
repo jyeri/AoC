@@ -151,7 +151,7 @@ void enqueue(struct Queue *queue, module *item)
     queue->rear = (queue->rear + 1) % queue->capacity;
     queue->array[queue->rear] = *item;
     queue->size = queue->size + 1;
-    printf("%s enqueued to queue\n", queue->array[queue->rear].name);
+//    printf("%s enqueued to queue\n", queue->array[queue->rear].name);
 }
 
 module *frontq(struct Queue *queue)
@@ -203,7 +203,7 @@ int in_rlist(int target, char *name)
     i = 0;
     while (i < thearray[target]->r_count)
     {
-        if (strcmp(thearray[target]->recieved[i], name) == 0)
+        if (strcmp(thearray[target]->recieved[i], &name[1]) == 0)
         {
             found = true;
             break;
@@ -212,7 +212,7 @@ int in_rlist(int target, char *name)
     }
     if (found == false)
     {
-        thearray[target]->recieved[i] = strdup(name);
+        thearray[target]->recieved[i] = strdup(&name[1]);
         thearray[target]->r_count++;
     }
     return i;
@@ -238,6 +238,7 @@ void send_pulse(struct Queue *q, module *qp)
     {
         x = 0;
         qp->d_pulse = 0;
+        printf("&room r_count: %d\n", qp->r_count);
         while (x < qp->r_count)
         {
             if (qp->r_pulse[x] == 0)
@@ -248,10 +249,11 @@ void send_pulse(struct Queue *q, module *qp)
             x++;
         }
     }
-    printf("%s - %d\n", qp->name, qp->d_pulse);
+//    printf("%s - %d\n", qp->name, qp->d_pulse);
     x = 0;
     while (x < qp->d_count)
     {
+//        printf("%s = destination\n", qp->destinations[x]);
         target = hash(qp->destinations[x]);
         result[qp->d_pulse]++;
         printf("%s -%d-> %s\n", qp->name, qp->d_pulse, thearray[target]->name);
@@ -359,6 +361,7 @@ int parser(char *line)
             }
         }
     }
+    make_room("output", 99999);
     return 0;
 }
 
