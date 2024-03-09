@@ -229,67 +229,53 @@ void send_pulse(struct Queue *q, module *qp)
     x = 0;
     if (qp->type == '%')
     {
-        if(qp->switches[0] == -1)
-            qp->d_pulse == 1;
+        if(qp->switches[0] == 1)
+            qp->d_pulse = 1;
         else
-            qp->d_pulse == 0;
-        while (x < qp->d_count)
-        {
-            target = hash(qp->destinations[x]);
-            result[qp->d_pulse]++;
-            if (thearray[target]->type == '%')
-            {
-                if(qp->d_pulse == 0)
-                {
-                    thearray[target]->r_count = 1;
-                    thearray[target]->switches[0] *= -1;
-                    enqueue(q, thearray[target]);
-                }
-            }
-            else if (thearray[target]->type == '&')
-            {
-                index = in_rlist(target, qp->name);
-                thearray[target]->r_pulse[index] = qp->d_pulse;
-                enqueue(q, thearray[target]);
-            }
-            else
-            {
-                enqueue(q, thearray[target]);
-            }
-            x++;
-        }
+            qp->d_pulse = 0;
     }
     else if (qp->type == '&')
     {
-        
-    }
-    else
-    {
-        while (x < qp->d_count)
+        x = 0;
+        qp->d_pulse = 0;
+        while (x < qp->r_count)
         {
-            target = hash(qp->destinations[x]);
-            result[qp->d_pulse]++;
-            if (thearray[target]->type == '%')
+            if (qp->r_pulse[x] == 0)
             {
-                if(qp->d_pulse == 0)
-                {
-                    thearray[target]->r_count = 1;
-                    thearray[target]->switches[0] *= -1;
-                    enqueue(q, thearray[target]);
-                }
-            }
-            else if (thearray[target]->type == '&')
-            {
-                index = in_rlist(target, qp->name);
-                thearray[target]->r_pulse[index] = qp->d_pulse;
-                enqueue(q, thearray[target]);
-            }
-            else
-            {
-                enqueue(q, thearray[target]);
+                qp->d_pulse = 1;
+                break;
             }
             x++;
         }
+    }
+    printf("%s - %d\n", qp->name, qp->d_pulse);
+    x = 0;
+    while (x < qp->d_count)
+    {
+        target = hash(qp->destinations[x]);
+        result[qp->d_pulse]++;
+        printf("%s -%d-> %s\n", qp->name, qp->d_pulse, thearray[target]->name);
+        if (thearray[target]->type == '%')
+        {
+            if(qp->d_pulse == 0)
+            {
+                thearray[target]->r_count = 1;
+                thearray[target]->switches[0] *= -1;
+                enqueue(q, thearray[target]);
+            }
+        }
+        else if (thearray[target]->type == '&')
+        {
+            index = in_rlist(target, qp->name);
+            thearray[target]->r_pulse[index] = qp->d_pulse;
+            enqueue(q, thearray[target]);
+        }
+        else
+        {
+            if (target != 99999)
+                enqueue(q, thearray[target]);
+        }
+        x++;
     }
 }
 
@@ -302,11 +288,14 @@ void solve()
     q = make_queue(10);
     qp = thearray[0];
     enqueue(q, qp);
+    result[0]++;
     while (q)
     {
         qp = frontq(q);
-        printf("qp from que is %s\n", qp->name);
+        if (qp == NULL)
+            return;
         send_pulse(q, qp);
+        dequeue(q);
     }
 
 }
@@ -397,6 +386,7 @@ int main(int argc, char **argv)
         parser(line);
     }
     solve();
+    printf("Lows: %d Highs: %d - Result: %d\n", result[0], result[1], result[0] + result[1]);
     fclose(fptr);
     return 0;
  
