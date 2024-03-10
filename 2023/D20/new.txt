@@ -31,3 +31,38 @@ When a pulse is received, the conjunction module first updates its memory
 for that input.
 Then, if it remembers high pulses for all inputs, it sends a low pulse; 
 otherwise, it sends a high pulse.
+
+button -low-> broadcaster
+broadcaster -low-> a
+broadcaster -low-> b
+broadcaster -low-> c
+a -high-> b
+b -high-> c
+c -high-> inv
+inv -low-> a
+a -low-> b
+b -low-> c
+c -low-> inv
+inv -high-> a
+
+broadcaster -> a
+%a -> inv, con
+&inv -> b
+%b -> con
+&con -> output
+
+button -low-> broadcaster
+broadcaster -low-> a
+a -high-> inv
+a -high-> con
+inv -low-> b
+con -high-> output
+b -high-> con
+con -low-> output
+
+button -low-> broadcaster
+broadcaster -low-> a
+a -low-> inv
+a -low-> con
+inv -high-> b
+con -high-> output

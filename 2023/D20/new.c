@@ -114,7 +114,7 @@ struct Queue
 
 int result[2];
 module *thearray[100000];
-
+int multiarray[100000];
 // function to create a queue
 // with init size 0
 // in this case i will use too larde capacity just to be sure
@@ -212,7 +212,6 @@ int in_rlist(int target, char *name)
     }
     if (found == false)
     {
-        thearray[target]->recieved[i] = strdup(&name[1]);
         thearray[target]->r_count++;
     }
     return i;
@@ -238,22 +237,22 @@ void send_pulse(struct Queue *q, module *qp)
     {
         x = 0;
         qp->d_pulse = 0;
-        printf("&room r_count: %d\n", qp->r_count);
-        while (x < qp->r_count)
+        while (x < multiarray[hash(qp->name)])
         {
-            if (qp->r_pulse[x] == 0)
+            printf("checking %d: r_pulse %d - from %s\n", x, qp->r_pulse[x], qp->recieved[x]);
+            if (qp->r_pulse[x] != 1)
             {
-                qp->d_pulse = 1;
+                qp->d_pulse = 0;
                 break;
             }
             x++;
+            printf("so pulse after check: %d\n", qp->d_pulse);
         }
     }
 //    printf("%s - %d\n", qp->name, qp->d_pulse);
     x = 0;
     while (x < qp->d_count)
     {
-//        printf("%s = destination\n", qp->destinations[x]);
         target = hash(qp->destinations[x]);
         result[qp->d_pulse]++;
         printf("%s -%d-> %s\n", qp->name, qp->d_pulse, thearray[target]->name);
@@ -270,6 +269,7 @@ void send_pulse(struct Queue *q, module *qp)
         {
             index = in_rlist(target, qp->name);
             thearray[target]->r_pulse[index] = qp->d_pulse;
+            thearray[target]->recieved[index] = strdup(qp->name);
             enqueue(q, thearray[target]);
         }
         else
@@ -281,23 +281,28 @@ void send_pulse(struct Queue *q, module *qp)
     }
 }
 
-void solve()
+void solve(int x)
 {
     printf("\n\n SOLVE PART BELOVE:\n\n");
     struct Queue *q;
     module *qp;
-
-    q = make_queue(10);
-    qp = thearray[0];
-    enqueue(q, qp);
-    result[0]++;
-    while (q)
+    while(x > 0)
     {
-        qp = frontq(q);
-        if (qp == NULL)
-            return;
-        send_pulse(q, qp);
-        dequeue(q);
+        printf("button -0-> roadcaster\n");
+        q = make_queue(10);
+        qp = thearray[0];
+        enqueue(q, qp);
+        result[0]++;
+        while (q)
+        {
+            qp = frontq(q);
+            if (qp == NULL)
+                break;
+            send_pulse(q, qp);
+            dequeue(q);
+        }
+        printf("\n\n");
+        x--;
     }
 
 }
@@ -357,6 +362,7 @@ int parser(char *line)
             printf("\n");
             while((token2 = (strtok_r(token, ",", &token))) != NULL)
             {
+                multiarray[hash(token2)] += 1;
                 add_destinations(token2, hashed);
             }
         }
@@ -388,7 +394,7 @@ int main(int argc, char **argv)
     {
         parser(line);
     }
-    solve();
+    solve(2);
     printf("Lows: %d Highs: %d - Result: %d\n", result[0], result[1], result[0] + result[1]);
     fclose(fptr);
     return 0;
