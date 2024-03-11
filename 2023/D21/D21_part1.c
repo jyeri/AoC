@@ -17,7 +17,7 @@ typedef struct Tile
     int y;
 } Tile;
 
-Tile    *visited[1000];
+// Tile    *visited[1000];
 
 typedef struct Queue 
 {
@@ -31,7 +31,7 @@ typedef struct Queue
 void printer(int x)
 {
     int i = 0;
-    if (step > 24 && step < 28)
+    if (step > 34 && step < 38)
     {
         printf("after %d: \n", step);
         while (i < x)
@@ -108,17 +108,17 @@ Tile    *make_tile(int x, int y)
     return new;
 }
 
-void    unmark(int j)
-{
-    int i = 0;
-    while (i < j)
-    {
-        array[visited[i]->x][visited[i]->y] = '.';
-        visited[i]->x = 0;
-        visited[i]->y = 0;
-        i++;
-    }
-}
+// void    unmark(int j)
+// {
+//     int i = 0;
+//     while (i < j)
+//     {
+//         array[visited[i]->x][visited[i]->y] = '.';
+//         visited[i]->x = 0;
+//         visited[i]->y = 0;
+//         i++;
+//     }
+// }
 
 int resulter(int max_x,int max_y)
 {
@@ -140,9 +140,9 @@ int resulter(int max_x,int max_y)
     return res;
 }
 
-int     already_q(int x, int y, Queue *q)
+int     already_q(int x, int y, Queue *q, int prevqp)
 {
-    int i = q->front;
+    int i = prevqp;
     while(i < q->size)
     {
         if(q->array[i].x == x && q->array[i].y == y)
@@ -152,7 +152,7 @@ int     already_q(int x, int y, Queue *q)
     return 0;
 }
 
-int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
+int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y, int prevqp)
 {
     int x = qp->x;
     int y = qp->y;
@@ -162,7 +162,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
 //    printf("(%d, %d)\n", x, y);
     if(x - 1 >= 0 && array[x - 1][y] == '.')
     {
-        if(already_q(x - 1, y, q) == 0)
+        if(already_q(x - 1, y, q, prevqp) == 0)
         {
             array[x - 1][y] = 'O';
             enqueue(q, make_tile(x - 1, y));
@@ -171,7 +171,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
     }
     if(x + 1 < max_x && array[x + 1][y] == '.')
     {
-        if(already_q(x + 1, y, q) == 0)
+        if(already_q(x + 1, y, q, prevqp) == 0)
         {
             array[x + 1][y] = 'O';
             enqueue(q, make_tile(x + 1, y));
@@ -180,7 +180,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
     }
     if(y - 1 >= 0 && array[x][y - 1] == '.')
     {
-        if(already_q(x, y - 1, q) == 0)
+        if(already_q(x, y - 1, q, prevqp) == 0)
         {
             array[x][y - 1] = 'O';
             enqueue(q, make_tile(x, y - 1));
@@ -189,7 +189,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
     }
     if(y + 1 < max_y && array[x][y + 1] == '.')
     {
-        if(already_q(x, y + 1, q) == 0)
+        if(already_q(x, y + 1, q, prevqp) == 0)
         {
             array[x][y + 1] = 'O';
             enqueue(q, make_tile(x, y + 1));
@@ -198,7 +198,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
     }
     dequeue(q);
     // this needs to happen later > after the que has been emptied
-//    array[x][y] = '.';
+    array[x][y] = '.';
     return res;
 }
 
@@ -208,6 +208,7 @@ int    solve (int max_x, int steps)
     Tile *beginning;
     Queue *q;
     Tile *qp;
+    int prevqp;
     int i = 0;
     int j = 0;
     int added = 0;
@@ -216,6 +217,7 @@ int    solve (int max_x, int steps)
     q = make_queue(1000);
     beginning = NULL;
     qp = NULL;
+    prevqp = 0;
     max_y = strlen(array[0]) - 1;
     printf("max_x = %d, max_y: %d\n", max_x, max_y);
     beginning = make_tile(start[0], start[1]);
@@ -224,20 +226,22 @@ int    solve (int max_x, int steps)
     printer(max_x);
     enqueue(q, beginning);
     qp = frontq(q);
-    added = eligiblity_check(qp, q, max_x, max_y);
+    prevqp = q->front;
+    added = eligiblity_check(qp, q, max_x, max_y, prevqp);
     array[qp->x][qp->y] = '.';
     while(i < steps - 1)
     {
         printer(max_x);
         printf("%d\n", added);
+        prevqp = q->front;
         while(j < added)
         {
             qp = frontq(q);
-            visited[j] = qp;
-            added2 += eligiblity_check(qp, q, max_x, max_y);
+//            visited[j] = qp;
+            added2 += eligiblity_check(qp, q, max_x, max_y, prevqp);
             j++;
         }
-        unmark(j);
+//        unmark(j);
         j = 0;
         added = added2;
         added2 = 0;
