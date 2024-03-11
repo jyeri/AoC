@@ -17,6 +17,8 @@ typedef struct Tile
     int y;
 } Tile;
 
+Tile    *visited[1000];
+
 typedef struct Queue 
 {
     int front;
@@ -29,11 +31,14 @@ typedef struct Queue
 void printer(int x)
 {
     int i = 0;
-    printf("after %d: \n", step);
-    while (i < x)
+    if (step > 24 && step < 28)
     {
-        printf("%s", array[i]);
-        i++;
+        printf("after %d: \n", step);
+        while (i < x)
+        {
+            printf("%s", array[i]);
+            i++;
+        }
     }
     step++;
     printf("\n\n---------------------------------\n\n");
@@ -101,6 +106,18 @@ Tile    *make_tile(int x, int y)
 
 //    printf("New tile made (%d,%d)\n", new->x, new->y);
     return new;
+}
+
+void    unmark(int j)
+{
+    int i = 0;
+    while (i < j)
+    {
+        array[visited[i]->x][visited[i]->y] = '.';
+        visited[i]->x = 0;
+        visited[i]->y = 0;
+        i++;
+    }
 }
 
 int resulter(int max_x,int max_y)
@@ -180,8 +197,8 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
         }
     }
     dequeue(q);
-    // this needs to happen later > after the que has been emptied.
-    array[x][y] = '.';
+    // this needs to happen later > after the que has been emptied
+//    array[x][y] = '.';
     return res;
 }
 
@@ -208,6 +225,7 @@ int    solve (int max_x, int steps)
     enqueue(q, beginning);
     qp = frontq(q);
     added = eligiblity_check(qp, q, max_x, max_y);
+    array[qp->x][qp->y] = '.';
     while(i < steps - 1)
     {
         printer(max_x);
@@ -215,9 +233,11 @@ int    solve (int max_x, int steps)
         while(j < added)
         {
             qp = frontq(q);
+            visited[j] = qp;
             added2 += eligiblity_check(qp, q, max_x, max_y);
             j++;
         }
+        unmark(j);
         j = 0;
         added = added2;
         added2 = 0;
