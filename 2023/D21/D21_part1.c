@@ -9,6 +9,7 @@
 
 char    *array[1000];
 int     start[2];
+int     step;
 
 typedef struct Tile 
 {
@@ -28,11 +29,13 @@ typedef struct Queue
 void printer(int x)
 {
     int i = 0;
+    printf("after %d: \n", step);
     while (i < x)
     {
         printf("%s", array[i]);
         i++;
     }
+    step++;
     printf("\n\n---------------------------------\n\n");
 }
 
@@ -96,8 +99,28 @@ Tile    *make_tile(int x, int y)
     new->x = x;
     new->y = y;
 
-    printf("New tile made (%d,%d)\n", new->x, new->y);
+//    printf("New tile made (%d,%d)\n", new->x, new->y);
     return new;
+}
+
+int resulter(int max_x,int max_y)
+{
+    int x = 0;
+    int y = 0;
+    int res = 0;
+
+    while(x < max_x)
+    {
+        while(y < max_y)
+        {
+            if (array[x][y] == 'O')
+                res++;
+            y++;
+        }
+        x++;
+        y = 0;
+    }
+    return res;
 }
 
 int     already_q(int x, int y, Queue *q)
@@ -119,8 +142,8 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
     int res;
 
     res = 0;
-    printf("%d / %d, %d / %d\n", x, max_x, y, max_y);
-    if(x - 1 > 0 && array[x - 1][y] == '.')
+//    printf("(%d, %d)\n", x, y);
+    if(x - 1 >= 0 && array[x - 1][y] == '.')
     {
         if(already_q(x - 1, y, q) == 0)
         {
@@ -138,7 +161,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
             res++;
         }
     }
-    if(y - 1 > 0 && array[x][y - 1] == '.')
+    if(y - 1 >= 0 && array[x][y - 1] == '.')
     {
         if(already_q(x, y - 1, q) == 0)
         {
@@ -147,7 +170,7 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
             res++;
         }
     }
-    else if(y + 1 < max_y && array[x][y + 1] == '.')
+    if(y + 1 < max_y && array[x][y + 1] == '.')
     {
         if(already_q(x, y + 1, q) == 0)
         {
@@ -157,11 +180,12 @@ int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y)
         }
     }
     dequeue(q);
+    // this needs to happen later > after the que has been emptied.
     array[x][y] = '.';
     return res;
 }
 
-void    solve (int max_x, int steps)
+int    solve (int max_x, int steps)
 {
     int max_y;
     Tile *beginning;
@@ -180,22 +204,27 @@ void    solve (int max_x, int steps)
     beginning = make_tile(start[0], start[1]);
     printf("Begin created to pos (%d,%d)\n", beginning->x, beginning->y);
 
+    printer(max_x);
     enqueue(q, beginning);
     qp = frontq(q);
     added = eligiblity_check(qp, q, max_x, max_y);
-    printer(max_x);
     while(i < steps - 1)
     {
+        printer(max_x);
+        printf("%d\n", added);
         while(j < added)
         {
             qp = frontq(q);
             added2 += eligiblity_check(qp, q, max_x, max_y);
             j++;
         }
+        j = 0;
         added = added2;
-        printer(max_x);
+        added2 = 0;
         i++;
     }
+//    printer(max_x);
+    return (resulter(max_x, max_y));
 }
 
 
@@ -223,8 +252,10 @@ int     main(int argc, char **argv)
     FILE    *fptr;
     int     current;
     int     steps;
+    int     res;
 
-    steps = 4;
+    step = 0;
+    steps = 64;
     current = 0;
     if (argc < 2)
     {
@@ -245,5 +276,6 @@ int     main(int argc, char **argv)
     if (start[0])
         printf("S FOUND: %d,%d\n", start[0], start[1]);
     printf("\n\nSOLVE PART STARTS\n\n");
-    solve(current, steps);
+    res = solve(current, steps);
+    printf("Final result is: %d\n", res);
 }
