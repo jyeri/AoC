@@ -141,68 +141,44 @@ int resulter(int max_x,int max_y)
     return res;
 }
 
-int     already_q(int x, int y, Queue *q, int prevqp)
-{
-    int i = prevqp;
-    while(i < q->size)
-    {
-        if(q->array[i].x == x && q->array[i].y == y)
-            return 1;
-        i++;
-    }
-    return 0;
-}
-
-int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y, int prevqp, int i)
+int     eligiblity_check(Tile *qp, Queue *q, int max_x, int max_y, int i)
 {
     int x = qp->x;
     int y = qp->y;
     int res;
 
     res = 0;
-    resetarr[i][0] = qp->x;
-    resetarr[i][1] = qp->y;
-//    printf("TO BE RESETTED: (%d, %d)\n", resetarr[i][0], resetarr[i][1]);
-//    printf("(%d, %d)\n", x, y);
-    if(x - 1 >= 0 && array[x - 1][y] == '.')
+    printf("Checking (%d, %d) - %c\n", x, y, array[x][y]);
+    if(x - 1 >= 0 && (array[x - 1][y] == '.' || array[x - 1][y] == 'S'))
     {
-        if(already_q(x - 1, y, q, prevqp) == 0)
-        {
-            array[x - 1][y] = 'O';
-            enqueue(q, make_tile(x - 1, y));
-            res++;
-        }
+        printf(" -> Added: (%d, %d)\n", x - 1, y);
+        array[x - 1][y] = 'O';
+        enqueue(q, make_tile(x - 1, y));
+        res++;
     }
-    if(x + 1 < max_x && array[x + 1][y] == '.')
+    if(x + 1 < max_x && (array[x + 1][y] == '.' || array[x + 1][y] == 'S'))
     {
-        if(already_q(x + 1, y, q, prevqp) == 0)
-        {
-            array[x + 1][y] = 'O';
-            enqueue(q, make_tile(x + 1, y));
-            res++;
-        }
+        printf(" -> Added: (%d, %d)\n", x + 1, y);
+        array[x + 1][y] = 'O';
+        enqueue(q, make_tile(x + 1, y));
+        res++;
     }
-    if(y - 1 >= 0 && array[x][y - 1] == '.')
+    if(y - 1 >= 0 && (array[x][y - 1] == '.' || array[x][y - 1] == 'S'))
     {
-        if(already_q(x, y - 1, q, prevqp) == 0)
-        {
-            array[x][y - 1] = 'O';
-            enqueue(q, make_tile(x, y - 1));
-            res++;
-        }
+        printf(" -> Added: (%d, %d)\n", x , y - 1);
+        array[x][y - 1] = 'O';
+        enqueue(q, make_tile(x, y - 1));
+        res++;
     }
-    if(y + 1 < max_y && array[x][y + 1] == '.')
+    if(y + 1 < max_y && (array[x][y + 1] == '.' || array[x][y + 1] == 'S'))
     {
-        if(already_q(x, y + 1, q, prevqp) == 0)
-        {
-            array[x][y + 1] = 'O';
-            enqueue(q, make_tile(x, y + 1));
-            res++;
-        }
+        printf(" -> Added: (%d, %d)\n", x , y + 1);
+        array[x][y + 1] = 'O';
+        enqueue(q, make_tile(x, y + 1));
+        res++;
     }
-    dequeue(q);
-    // this needs to happen later > after the que has been emptied
-//    array[x][y] = '.';
+    resetarr[i][0] = x;
+    resetarr[i][1] = y;
     return res;
 }
 
@@ -212,53 +188,45 @@ int    solve (int max_x, int steps)
     Tile *beginning;
     Queue *q;
     Tile *qp;
-    int prevqp;
-    int i = 0;
-    int j = 0;
-    int added = 0;
-    int added2 = 0;
+    int x = 0;
+    int added = 1;
     int k = 0;
+    int i = 0;
+    int last_add = 0;
 
     q = make_queue(1000);
     beginning = NULL;
     qp = NULL;
-    prevqp = 0;
     max_y = strlen(array[0]) - 1;
     printf("max_x = %d, max_y: %d\n", max_x, max_y);
     beginning = make_tile(start[0], start[1]);
     printf("Begin created to pos (%d,%d)\n", beginning->x, beginning->y);
 
-    printer(max_x);
     enqueue(q, beginning);
-    qp = frontq(q);
-    prevqp = q->front;
-    added = eligiblity_check(qp, q, max_x, max_y, prevqp, k);
-    array[qp->x][qp->y] = '.';
+    printer(max_x);
     while(i < steps - 1)
     {
-//        printer(max_x);
-        printf("%d\n", added);
-        prevqp = q->front;
-        while(j < added)
+        printf("\n DEBUG VALUES:\nx: %d, k:%d, last_add: %d, added: %d, step: %d\n\n", x, k, last_add, added, i);
+        printer(max_x);
+        while (x < added)
         {
             qp = frontq(q);
-//            visited[j] = qp;
-            added2 += eligiblity_check(qp, q, max_x, max_y, prevqp, k);
-            k++;
-            j++;
+            last_add += eligiblity_check(qp, q, max_x, max_y, x);
+            dequeue(q);
+            x++;
         }
-//        unmark(j);
-//        printf("to reset: %d\n", k);
-        while (k)
+        while(k < x)
         {
+            printf("Resetting (%d, %d)\n", resetarr[k][0], resetarr[k][1]);
             array[resetarr[k][0]][resetarr[k][1]] = '.';
-            k--;
+            resetarr[k][0] = -1;
+            resetarr[k][1] = -1;
+            k++;
         }
-        array[resetarr[k][0]][resetarr[k][1]] = '.';
-//        printf("%d not RESETTED\n", k);
-        j = 0;
-        added = added2;
-        added2 = 0;
+        k = 0;
+        x = 0;
+        added = last_add;
+        last_add = 0;
         i++;
     }
 //    printer(max_x);
