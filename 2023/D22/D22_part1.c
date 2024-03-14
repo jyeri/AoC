@@ -38,9 +38,45 @@ Brick   *create_brick()
     return (new);
 }
 
-void    sort_bricks()
+void swap(int i, int j)
 {
+    int tmp_sx  = brickarray[i]->sx;
+    int tmp_sy  = brickarray[i]->sy;
+    int tmp_sz  = brickarray[i]->sz;
+    int tmp_ex  = brickarray[i]->ex;
+    int tmp_ey  = brickarray[i]->ey;
+    int tmp_ez  = brickarray[i]->ez;
 
+    brickarray[i]->sx = brickarray[j]->sx;
+    brickarray[i]->sy = brickarray[j]->sy;
+    brickarray[i]->sz = brickarray[j]->sz;
+    brickarray[i]->ex = brickarray[j]->ex;
+    brickarray[i]->ey = brickarray[j]->ey;
+    brickarray[i]->ez = brickarray[j]->ez;
+
+    brickarray[j]->sx = tmp_sx;
+    brickarray[j]->sy = tmp_sy;
+    brickarray[j]->sz = tmp_sz;
+    brickarray[j]->ex = tmp_ex;
+    brickarray[j]->ey = tmp_ey;
+    brickarray[j]->ez = tmp_ez;
+}
+
+void    sort_bricks(int max)
+{
+    int i = 0;
+    int j = 0;
+    while (i < max)
+    {
+        j = i + 1;
+        while (j < max)
+        {
+            if (brickarray[i]->sz > brickarray[j]->sz)
+                swap(i, j);
+            j++;
+        }
+        i++;
+    }
 }
 
 int     parser(char *line, int current)
@@ -101,7 +137,12 @@ int     main(int argc, char **argv)
 //    printf("\n\n");
 //    printf("%ld\n", result);
 //    printf ("%ld\n", total);
-    sortbricks(current);
+    sort_bricks(current);
+    printf("\nsorted\n\n");
+    for(int i = 0; i < current; i++)
+    {
+         printf("Brick %d: [%d, %d, %d] ~ [%d, %d, %d]\n", i,  brickarray[i]->sx, brickarray[i]->sy, brickarray[i]->sz, brickarray[i]->ex, brickarray[i]->ey, brickarray[i]->ez);
+    }
 //  mark_supports(current);
 //  solve(current);
     fclose(fptr);
