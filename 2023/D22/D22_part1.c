@@ -79,6 +79,53 @@ void    sort_bricks(int max)
     }
 }
 
+bool    overlap(Brick *b1, Brick *b2)
+{
+    if (fmax(b1->sx, b2->sx) <= fmin(b1->ex, b2->ex) && fmax(b1->sy, b2->sy) <= fmin(b1->ey, b2->ey))
+        return true;
+    return false;
+}
+
+
+// Marking the falling bricks:
+// iterate sorted array, brick by brick
+// keep track of minimum value it can fall into (new z position) (also update endingz)
+// in second thoughts:
+// iterate from array[i] until array[0] or until array[i - x] already has overlap value
+
+void    mark_falling(int maximum)
+{
+    int i = 0;
+    int j = 0;
+    int min_z = 1;
+    Brick *b;
+    Brick *bcomp;
+
+    while (i < maximum)
+    {
+        b = brickarray[i];
+        j = 1;
+        while (i - j >= 0)
+        {
+            bcomp = brickarray[i - j];
+            if (overlap(b, bcomp))
+            {
+                min_z = fmax(min_z, bcomp->ez + 1);
+            }
+            j++;
+        }
+        b->sz = min_z - b->ez;
+        b->ez = min_z;
+        i++;
+    }
+
+}
+
+//void    mark_supports(int max)
+//{
+//
+//}
+
 int     parser(char *line, int current)
 {
  //   char *new;
@@ -143,8 +190,14 @@ int     main(int argc, char **argv)
     {
          printf("Brick %d: [%d, %d, %d] ~ [%d, %d, %d]\n", i,  brickarray[i]->sx, brickarray[i]->sy, brickarray[i]->sz, brickarray[i]->ex, brickarray[i]->ey, brickarray[i]->ez);
     }
-//  mark_supports(current);
-//  solve(current);
+    mark_falling(current);
+    printf("\nsorted fallen\n\n");
+    for(int i = 0; i < current; i++)
+    {
+         printf("Brick %d: [%d, %d, %d] ~ [%d, %d, %d]\n", i,  brickarray[i]->sx, brickarray[i]->sy, brickarray[i]->sz, brickarray[i]->ex, brickarray[i]->ey, brickarray[i]->ez);
+    }
+//    mark_supports(current);
+//    solve(current);
     fclose(fptr);
     return current;
  
