@@ -1,0 +1,9 @@
+-> Go A
+-> Add A to Fallen, B AND C to que
+-> deque A
+-> check if B has other supports that isn't already in fallen or que
+-> if not add all supporting to que
+-> check if C has other supports that isn't already in fallen or que
+-> if not add all supporting to que
+-> deque B AND C
+-> repeat steps?
