@@ -374,24 +374,20 @@ void    solve(int maximum)
     k = 0;
     sup = 0;
     int res = 0;
-    int total = 0;
 
     while (i < maximum)
     {
-        res = 0;
         if(chainreact[i] == true)
         {
             printf("----- Chainreact in %d -------\n", i);
-            res = part2(i);
+            res += part2(i) - 1;
             chainreact[i] = false;
             printf("Actual result from %d is %d \n", i, res);
             printf("\n------------------------------\n\n\n");
         }
-        if (res > total)
-            total = res;
         i++;
     }
-    printf("Total of %d would disencrate\n", total);
+    printf("Total of %d would disencrate\n", res);
 }
 
 int     parser(char *line, int current)
