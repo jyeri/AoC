@@ -66,11 +66,10 @@ void enqueue(struct Queue* queue, int item)
 {
     if (isFull(queue))
         return;
-    queue->rear = (queue->rear + 1)
-                  % queue->capacity;
+    queue->rear = (queue->rear + 1) % queue->capacity;
     queue->array[queue->rear] = item;
     queue->size = queue->size + 1;
-    printf("%c enqueued to queue\n", 'a' + item);
+    printf("%d enqueued to queue, so que size now: %d\n", item, queue->size);
 }
  
 // Function to remove an item from queue.
@@ -83,7 +82,7 @@ int dequeue(struct Queue* queue)
     queue->front = (queue->front + 1)
                    % queue->capacity;
     queue->size = queue->size - 1;
-    printf("%c dequeued to queue\n", 'a' + item);
+    printf("%d dequeued from queue\n", item);
     return item;
 }
  
@@ -210,7 +209,7 @@ void    mark_falling(int maximum)
 //                while(bcomp->give_support[k] > 0)
 //                    k++;
 //                bcomp->give_support[k] = i;
-//                printf("brickarray[%c] is supported by brickarray[%c]\n", 'a' + i, 'a' + (i - j));
+//                printf("brickarray[%c] is supported by brickarray[%c]\n", i, (i - j));
 //                x++;
             }
             j++;
@@ -251,7 +250,7 @@ void    mark_supports(int maximum)
                     k++;
                 }
                 lower->give_support[k] = i;
-                printf("brickarray[%c]->[%d] supports brickarray[%c]\n", 'a' + j, k, 'a' + i);
+                printf("brickarray[%d]->[%d] supports brickarray[%d]\n", j, k, i);
                 x++;
             }
             j--;
@@ -262,15 +261,21 @@ void    mark_supports(int maximum)
 
 int     already_qued(struct Queue* queue, int brick)
 {
+    int j;
     int i;
 
+    j = 0;
     i = queue->front;
-    while (i <= queue->size)
+//    printf("----- que size is: %d - %d ----\n", queue->size, i);
+    while (j <= queue->size)
     {
+//        printf("--> in que->array[%d] we have: %d\n", i, queue->array[i]);
         if (queue->array[i] == brick)
             return 1;
+        j++;
         i++;
     }
+//    printf("-----\n");
     return 0;
 }
 
@@ -279,28 +284,33 @@ int     part2(int brick)
     int x = 0;
     int k = 0;
     int sup = 0;
-    struct Queue* queue = createQueue(1000);
-    struct Queue* fallen = createQueue(1000);
+    struct Queue* queue = createQueue(5000);
+    struct Queue* fallen = createQueue(5000);
 
     enqueue(queue, brick);
     while (queue->size > 0)
     {
         x = 0;
         brick = front(queue);
-        printf("Current brick: %c\n", 'a' + brick);
+        printf("Current brick: %d\n", brick);
         while(brickarray[brick]->give_support[x] != -1)
         {
-            printf(" -> supporting brick: %c\n", 'a' + brickarray[brick]->give_support[x]);
+            printf(" -> supporting brick: %d\n", brickarray[brick]->give_support[x]);
             //check if supported brick has:
             //1. other supports that are not in que, and or in fallen
             k = 0;
             sup = 0;
             while (brickarray[brickarray[brick]->give_support[x]]->get_support[k] != -1)
             {
-                printf(" <- that is supported by brick: %c\n", 'a' + brickarray[brickarray[brick]->give_support[x]]->get_support[k]);
-                if(already_qued(fallen, brickarray[brickarray[brick]->give_support[x]]->get_support[k]) || already_qued(queue, brickarray[brickarray[brick]->give_support[x]]->get_support[k]))
+                printf(" <- that is supported by brick: %d\n", brickarray[brickarray[brick]->give_support[x]]->get_support[k]);
+                if(already_qued(fallen, brickarray[brickarray[brick]->give_support[x]]->get_support[k]))
                 {
-                    printf("its qued\n");
+                    printf("its fallen qued\n");
+                    sup++;
+                }
+                else if(already_qued(queue, brickarray[brickarray[brick]->give_support[x]]->get_support[k]))
+                {
+                    printf("its normal qued\n");
                     sup++;
                 }
                 k++;
@@ -310,14 +320,13 @@ int     part2(int brick)
                     enqueue(queue, brickarray[brick]->give_support[x]);
             x++;
         }
-        printf("\n\n");
-        printf("to fallen que: ");
+//        printf("\n\n");
+//        printf("to fallen que: ");
         enqueue(fallen, brick);
-        printf("fallen size is now %d\n", fallen->size);
-        printf("\n\n");
+//        printf("fallen size is now %d\n", fallen->size);
         dequeue(queue);
+        printf("\n\n");
     }
-    getchar();
     return (fallen->size);
 }
 
@@ -347,12 +356,12 @@ void    solve(int maximum)
         }
         if(sup == x)
         {
-            printf("Brick %c is BEDGE\n", 'a' + i);
+            printf("Brick %d is BEDGE\n", i);
             chainreact[i] = false;
         }
         else
         {
-            printf("Brick %c is CAN CAUSE CHAIN REACTION\n", 'a' + i);
+            printf("Brick %d is CAN CAUSE CHAIN REACTION\n", i);
             chainreact[i] = true;
         }
         sup = 0;
@@ -372,8 +381,11 @@ void    solve(int maximum)
         res = 0;
         if(chainreact[i] == true)
         {
+            printf("----- Chainreact in %d -------\n", i);
             res = part2(i);
             chainreact[i] = false;
+            printf("Actual result from %d is %d \n", i, res);
+            printf("\n------------------------------\n\n\n");
         }
         if (res > total)
             total = res;
