@@ -32,17 +32,73 @@ else
     echo "Folders already exist: $DAY_FOLDER, $JS_FOLDER, and $C_FOLDER"
 fi
 
-# Create empty result files if they don't already exist
+# Create and populate JS result file
+# Create and populate JS result file
 if [ ! -f "$JS_RESULT_FILE" ]; then
-    touch "$JS_RESULT_FILE"
-    echo "Created file: $JS_RESULT_FILE"
+    cat > "$JS_RESULT_FILE" <<EOF
+// Advent of Code $YEAR - Day $DAY
+const fs = require('fs');
+const path = require('path');
+
+// Get the directory of the current script
+const scriptDirectory = path.dirname(__filename);
+
+// Resolve the path to input.txt
+const inputFilePath = path.join(scriptDirectory, 'input.txt');
+
+// Read input data
+const input = fs.readFileSync(inputFilePath, 'utf-8').trim();
+
+// Print input to the terminal
+console.log('Input:', input);
+
+// Solution for Part 1
+// Add your solution here
+EOF
+    chmod +x "$JS_RESULT_FILE"
+    echo "Created file with basic template: $JS_RESULT_FILE"
 else
     echo "File already exists: $JS_RESULT_FILE"
 fi
 
+# Create and populate C result file
 if [ ! -f "$C_RESULT_FILE" ]; then
-    touch "$C_RESULT_FILE"
-    echo "Created file: $C_RESULT_FILE"
+    cat > "$C_RESULT_FILE" <<EOF
+// Advent of Code $YEAR - Day $DAY
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function to read input from file
+char* read_input(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        perror("Failed to open file");
+        exit(EXIT_FAILURE);
+    }
+    fseek(file, 0, SEEK_END);
+    long length = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char* buffer = malloc(length + 1);
+    fread(buffer, 1, length, file);
+    fclose(file);
+    buffer[length] = '\\0';
+    return buffer;
+}
+
+int main() {
+    // Read input
+    char* input = read_input("./input.txt");
+
+    // Print input to the terminal
+    printf("Input:\\n%s\\n", input);
+
+    // Free allocated memory
+    free(input);
+    return 0;
+}
+EOF
+    chmod +x "$C_RESULT_FILE"
+    echo "Created file with basic template: $C_RESULT_FILE"
 else
     echo "File already exists: $C_RESULT_FILE"
 fi
@@ -61,6 +117,10 @@ if [ $? -eq 0 ] && [ -s "$JS_INPUT_FILE" ]; then
     # Copy the fetched input to the C folder
     cp "$JS_INPUT_FILE" "$C_INPUT_FILE"
     echo "Data also copied to $C_INPUT_FILE."
+
+    # Optional: Compile the C file
+    gcc -o "$C_FOLDER/Day$DAY" "$C_RESULT_FILE"
+
 else
     echo "Failed to fetch data. Please check your session token, date, or ensure the day is unlocked."
     # Clean up empty files if fetch failed
