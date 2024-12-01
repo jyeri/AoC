@@ -1,30 +1,24 @@
 #!/bin/bash
 
-# Step 1: Ask user for the year
+# Step 1: Ask user for the year & day
 read -p "Enter the year for Advent of Code (e.g., 2024): " YEAR
+read -p "Enter the day for Advent of Code (e.g., 7 for Day 7): " DAY
 
-# Step 2: Ask user for the day
-read -p "Enter the day for Advent of Code (e.g., 1 for Day 1): " DAY
-
-# Step 3: Check if the session token is available
+# Step 2: Check if the session token is available
 if [ -z "$AOC_SESSION" ]; then
     echo "Error: Session token not found. Please save it in your .bashrc as AOC_SESSION."
     exit 1
 fi
 
-# Step 4: Define the URL
+# Step 3: Define the URL and folder structure with file names
 URL="https://adventofcode.com/$YEAR/day/$DAY/input"
-
-# Define the folder structure
 DAY_FOLDER="Day$DAY"
 JS_FOLDER="$DAY_FOLDER/JS"
 C_FOLDER="$DAY_FOLDER/C"
-
-# Define result file names
 JS_RESULT_FILE="$JS_FOLDER/Day$DAY.js"
 C_RESULT_FILE="$C_FOLDER/Day$DAY.c"
 
-# Step 5: Create folders only if they don't exist
+# Step 4: Create folders ONLY if they don't exist, after populate the template files
 if [ ! -d "$DAY_FOLDER" ]; then
     mkdir -p "$JS_FOLDER" "$C_FOLDER"
     echo "Created folders: $DAY_FOLDER, $JS_FOLDER, and $C_FOLDER"
@@ -32,7 +26,6 @@ else
     echo "Folders already exist: $DAY_FOLDER, $JS_FOLDER, and $C_FOLDER"
 fi
 
-# Create and populate JS result file
 # Create and populate JS result file
 if [ ! -f "$JS_RESULT_FILE" ]; then
     cat > "$JS_RESULT_FILE" <<EOF
@@ -107,14 +100,13 @@ fi
 JS_INPUT_FILE="$JS_FOLDER/input.txt"
 C_INPUT_FILE="$C_FOLDER/input.txt"
 
-# Step 6: Fetch the data
+# Step 5: Fetch the data from the Advent of Code website, using the session token
 echo "Fetching data for Year $YEAR, Day $DAY..."
 curl -s -b "session=$AOC_SESSION" "$URL" -o "$JS_INPUT_FILE"
 
-# Step 7: Check if fetch was successful
+# Step 6: Check if fetch was successful
 if [ $? -eq 0 ] && [ -s "$JS_INPUT_FILE" ]; then
     echo "Data successfully fetched and saved to $JS_INPUT_FILE."
-    # Copy the fetched input to the C folder
     cp "$JS_INPUT_FILE" "$C_INPUT_FILE"
     echo "Data also copied to $C_INPUT_FILE."
 
