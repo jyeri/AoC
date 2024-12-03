@@ -31,43 +31,33 @@ if [ ! -f "$JS_RESULT_FILE" ]; then
     cat > "$JS_RESULT_FILE" <<EOF
 // Advent of Code $YEAR - Day $DAY
 const fs = require('fs');
-const path = require('path');
+const input = fs.readFileSync('./input.txt', 'utf8').split('\n');
 
-// Get the directory of the current script
-const scriptDirectory = path.dirname(__filename);
+// Part 1
+const solvePart1 = () => {
+    let p1_ans = 0;
 
-// Resolve the path to input.txt
-const inputFilePath = path.join(scriptDirectory, 'input.txt');
+    for (const line of input) {
+        // line by line
+        console.log(`Line: ${line}`);
+    }
 
-// Read input data
-const input = fs.readFileSync(inputFilePath, 'utf-8').trim();
-
-// Print parsed input to the terminal
-const parsedInput = input.split('\n').map(line => line.split(' ').map(Number));
-
-console.log('Parsed Input:', parsedInput);
-
-// Solution for Part 1
-const p1 = () => {
-    let ans_p1 = 0;
- //   for (const row of parsedInput) {
- //   
- //   }
-    console.log('Answer Part 1:', ans_p1);
+    console.log('Part 1:', p1_ans);
 };
 
-//solution for part 2
-const p2 = () => {
-    let ans_p2 = 0;
-//    for (const row of parsedInput) {
-//
-//    }
-    console.log('Answer Part 2:', ans_p2);
-    return ans_p2;
+// Part 2
+const solvePart2 = () => {
+    let p2_ans = 0;
+
+    for (const line of input) {
+        // line by line
+    }
+
+    console.log('Part 2:', p2_ans);
 };
 
-p1();
-p2();
+solvePart1();
+solvePart2();
 EOF
     chmod +x "$JS_RESULT_FILE"
     echo "Created file with basic template: $JS_RESULT_FILE"
@@ -82,7 +72,6 @@ if [ ! -f "$C_RESULT_FILE" ]; then
 #include <stdio.h>
 #include <stdlib.h>
 
-// Function to read input from file
 char* read_input(const char* filename) {
     FILE* file = fopen(filename, "r");
     if (!file) {
@@ -99,14 +88,40 @@ char* read_input(const char* filename) {
     return buffer;
 }
 
-int main() {
-    // Read input
-    char* input = read_input("./input.txt");
+int solvePart1(char* input) {
+    int p1_ans = 0;
 
-    // Print input to the terminal
+    char* line = strtok(input, "\\n");
+    while (line != NULL) {
+        // line by line
+        printf("Line: %s\\n", line);
+        line = strtok(NULL, "\\n");
+    }
+
+    printf("Part 1: %d\\n", p1_ans);
+    return p1_ans;
+}
+
+int solvePart2(char* input) {
+    int p2_ans = 0;
+
+    char* line = strtok(input, "\\n");
+    while (line != NULL) {
+        // line by line
+        line = strtok(NULL, "\\n");
+    }
+
+    printf("Part 2: %d\\n", p2_ans);
+    return p2_ans;
+}
+
+int main() {
+    char* input = read_input("./input.txt");
     printf("Input:\\n%s\\n", input);
 
-    // Free allocated memory
+    solvePart1(input);
+    solvePart2(input);
+
     free(input);
     return 0;
 }
