@@ -48,7 +48,26 @@ const parsedInput = input.split('\n').map(line => line.split(' ').map(Number));
 console.log('Parsed Input:', parsedInput);
 
 // Solution for Part 1
-// Add your solution here
+const p1 = () => {
+    let ans_p1 = 0;
+ //   for (const row of parsedInput) {
+ //   
+ //   }
+    console.log('Answer Part 1:', ans_p1);
+};
+
+//solution for part 2
+const p2 = () => {
+    let ans_p2 = 0;
+//    for (const row of parsedInput) {
+//
+//    }
+    console.log('Answer Part 2:', ans_p2);
+    return ans_p2;
+};
+
+p1();
+p2();
 EOF
     chmod +x "$JS_RESULT_FILE"
     echo "Created file with basic template: $JS_RESULT_FILE"
