@@ -55,7 +55,6 @@ int p2(int *Array1, int *Array2, int line_count) {
 }
 
 int main() {
-    // Read input
     char* input = read_input("./input.txt");
 
     int line_count = 0;
@@ -64,21 +63,19 @@ int main() {
     int ans_part1 = 0;
     int ans_part2 = 0;
 
-    char* line = strtok(input, "\n"); // Tokenize by lines
+    char* line = strtok(input, "\n");
     while (line != NULL) {
-        // Parse the two numbers divided by 3 spaces
         int num1 = 0, num2 = 0;
-        sscanf(line, "%d   %d", &num1, &num2); // Match two numbers separated by 3 spaces
+        sscanf(line, "%d   %d", &num1, &num2);
         Array1[line_count] = num1;
         Array2[line_count] = num2;
         line_count++;
-        line = strtok(NULL, "\n"); // Get the next line
+        line = strtok(NULL, "\n"); // next line
     }
 
     qsort(Array1, line_count, sizeof(int), cmpfunc);
     qsort(Array2, line_count, sizeof(int), cmpfunc);
 
-    // Compute Part 1
     ans_part1 = p1(Array1, Array2, line_count);
     ans_part2 = p2(Array1, Array2, line_count);
 
@@ -86,7 +83,6 @@ int main() {
     printf("Part 1: %d\n", ans_part1);
     printf("Part 2: %d\n", ans_part2);
 
-    // Free allocated memory
     free(input);
     return 0;
 }
