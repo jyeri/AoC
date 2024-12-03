@@ -42,8 +42,10 @@ const inputFilePath = path.join(scriptDirectory, 'input.txt');
 // Read input data
 const input = fs.readFileSync(inputFilePath, 'utf-8').trim();
 
-// Print input to the terminal
-console.log('Input:', input);
+// Print parsed input to the terminal
+const parsedInput = input.split('\n').map(line => line.split(' ').map(Number));
+
+console.log('Parsed Input:', parsedInput);
 
 // Solution for Part 1
 // Add your solution here
