@@ -23,10 +23,10 @@ const solvePart1 = () => {
         { x: 0, y: -1 },  // left
         { x: 1, y: 0 },  // down
         { x: -1, y: 0 },  // up
-        { x: -1, y: -1 },  // diagonal up-left
-        { x: -1, y: 1 },  // diagonal up-right
-        { x: 1, y: 1 },  // diagonal down-right
-        { x: 1, y: -1 }  // diagonal down-left
+        { x: -1, y: -1 },  // up-left
+        { x: -1, y: 1 },  // up-right
+        { x: 1, y: 1 },  // down-right
+        { x: 1, y: -1 }  // down-left
     ]
 
     const inBounds = (x, y) => {
@@ -80,10 +80,10 @@ const solvePart2 = () => {
     ];
 
     const directions = [
-        { x: -1, y: -1 },  // diagonal up-left
-        { x: 1, y: 1 },  // diagonal down-right
-        { x: -1, y: 1 },  // diagonal up-right
-        { x: 1, y: -1 }  // diagonal down-left
+        { x: -1, y: -1 },  // up-left
+        { x: 1, y: 1 },  // down-right
+        { x: -1, y: 1 },  // up-right
+        { x: 1, y: -1 }  // down-left
     ];
 
     const check = (x, y) => {
