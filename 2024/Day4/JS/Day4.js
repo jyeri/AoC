@@ -29,15 +29,21 @@ const solvePart1 = () => {
         { x: 1, y: -1 }  // diagonal down-left
     ]
 
-    // checking that we stay inside 2D aaaay
-    const inBounds = (x, y) => x >= 0 && x < input[0].length && y >= 0 && y < input.length;
+    const inBounds = (x, y) => {
+        if (x >= 0 && x < input[0].length && y >= 0 && y < input.length) {
+            return true;
+        }
+        return false;
+    };
 
-    //look the word in all of the directions
     const check = (x, y, direction) => {
         for (let i = 0; i < target.length; i++) {
             const newX = x + i * direction.x;
             const newY = y + i * direction.y;
-            if (!inBounds(newX, newY) || input[newY][newX] !== target[i]) {
+            if (!inBounds(newX, newY)) {
+                return false;
+            }
+            if (input[newY][newX] !== target[i]) {
                 return false;
             }
         }
@@ -80,19 +86,15 @@ const solvePart2 = () => {
         { x: 1, y: -1 }  // diagonal down-left
     ];
 
-    // checking that we stay inside 2D array
-    const inBounds = (x, y) => x >= 0 && x < input[0].length && y >= 0 && y < input.length;
-
     const check = (x, y) => {
         for (let i = 0; i < directions.length; i += 2) {
-            // this covers the oppsite directions route.
             const dir1 = directions[i];
-            const dir2 = directions[i + 1];
+            const opposite = directions[i + 1];
 
             const newX1 = x + dir1.x;
             const newY1 = y + dir1.y;
-            const newX2 = x + dir2.x;
-            const newY2 = y + dir2.y;
+            const newX2 = x + opposite.x;
+            const newY2 = y + opposite.y;
 
             if (!inBounds(newX1, newY1) || !inBounds(newX2, newY2)) {
                 return false;
