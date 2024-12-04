@@ -71,6 +71,7 @@ if [ ! -f "$C_RESULT_FILE" ]; then
 // Advent of Code $YEAR - Day $DAY
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 char* read_input(const char* filename) {
     FILE* file = fopen(filename, "r");
