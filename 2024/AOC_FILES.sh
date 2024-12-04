@@ -85,40 +85,39 @@ char* read_input(const char* filename) {
     char* buffer = malloc(length + 1);
     fread(buffer, 1, length, file);
     fclose(file);
-    buffer[length] = '\\0';
+    buffer[length] = '\0';
     return buffer;
 }
 
 int solvePart1(char* input) {
-    int p1_ans = 0;
+    int part1_res = 0;
 
-    char* line = strtok(input, "\\n");
+    char* line = strtok(input, "\n");
     while (line != NULL) {
-        // line by line
-        printf("Line: %s\\n", line);
-        line = strtok(NULL, "\\n");
+        printf("Line: %s\n", line);
+        line = strtok(NULL, "\n");
     }
 
-    printf("Part 1: %d\\n", p1_ans);
-    return p1_ans;
+    printf("Part 1 result: %d\n", part1_res);
+    return part1_res;
 }
 
 int solvePart2(char* input) {
-    int p2_ans = 0;
+    int part2_res = 0;
 
-    char* line = strtok(input, "\\n");
+    char* line = strtok(input, "\n");
     while (line != NULL) {
-        // line by line
-        line = strtok(NULL, "\\n");
+        
+        line = strtok(NULL, "\n");
     }
 
-    printf("Part 2: %d\\n", p2_ans);
-    return p2_ans;
+    printf("Part 2 Result: %d\n", part2_res);
+    return part2_res;
 }
 
 int main() {
     char* input = read_input("./input.txt");
-    printf("Input:\\n%s\\n", input);
+    printf("Input:\n%s\n", input);
 
     solvePart1(input);
     solvePart2(input);
