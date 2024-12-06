@@ -36,10 +36,13 @@ const input = fs.readFileSync('./input.txt', 'utf8').split('\n');
 // Part 1
 const solvePart1 = () => {
     let p1_ans = 0;
+        const tester = [
 
-    for (const line of input) {
+    ];
+
+    for (const row of tester) {
         // line by line
-        console.log(`Line: ${line}`);
+        console.log(`Row: ${Row}`);
     }
 
     console.log('Part 1:', p1_ans);
@@ -48,9 +51,13 @@ const solvePart1 = () => {
 // Part 2
 const solvePart2 = () => {
     let p2_ans = 0;
+    const tester = [
 
-    for (const line of input) {
+    ];
+
+    for (const row of tester) {
         // line by line
+        // console.log(`Row: ${Row}`);
     }
 
     console.log('Part 2:', p2_ans);
