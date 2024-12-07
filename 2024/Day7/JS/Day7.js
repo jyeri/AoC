@@ -126,7 +126,6 @@ for (const row of input) {
         ok = false;
         let combinationSum = numbers[0];
         // i have to create a copy since the concatter result is modified into numbers array
-        let tempNumbers = [...numbers];
         for (let i = 0; i < comb.length; i++) {
             if (comb[i] === '+') {
                 combinationSum += numbers[i + 1];
@@ -134,7 +133,7 @@ for (const row of input) {
                 combinationSum *= numbers[i + 1];
             }
             else if (comb[i] === '|') {
-                let concatted = concatter(combinationSum, tempNumbers[i + 1]);
+                let concatted = concatter(combinationSum, numbers[i + 1]);
                 combinationSum = concatted;
 
             }
