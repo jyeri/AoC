@@ -10,13 +10,16 @@ yearly christmas calendar that every single puzzlesolver will enjoy, I guarantee
 While I am not aiming to leaderboard in anyway, I still wrote a script to help with getting started Simply because it is fun. Usage of the script is fairly simple and feel free to do so.
 If you decide to use it, couple things I could mention.
 1. move the script (AOC_FILES.sh) to the yearly folder, in my case its located
-```bash root/2024/AOC_FILES.sh ```
+
+``` root/2024/AOC_FILES.sh ```
 
 2. You have to hardcode AOC_SESSION variable in your ~/.bashrc file like this 
-```bash export AOC_SESSION="insert_your_aoc_session_token_here" ```
+
+``` export AOC_SESSION="insert_your_aoc_session_token_here" ```
 
 3. before running the script, everytime when terminal is opened run the command
-```bash source ~/.bashrc ```
+
+``` source ~/.bashrc ```
 
 4. Templates that I use are really generic templates and can be customized to your preferences, mine just tend to lean towards what was normal in my school.
 
