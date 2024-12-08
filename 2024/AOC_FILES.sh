@@ -41,7 +41,9 @@ if [ ! -f "$JS_RESULT_FILE" ]; then
 */
 
 const fs = require('fs');
-const input = fs.readFileSync('./input.txt', 'utf8').split('\n');
+const input = fs.readFileSync('./input.txt', 'utf8')
+    .trim()
+    .split('\n');
 
 // Part 1
 const solvePart1 = () => {
