@@ -30,6 +30,16 @@ fi
 if [ ! -f "$JS_RESULT_FILE" ]; then
     cat > "$JS_RESULT_FILE" <<EOF
 // Advent of Code $YEAR - Day $DAY
+
+/*
+    --- Part 1 ---
+    General approach
+
+
+    --- Part 2 ---
+    General approach
+*/
+
 const fs = require('fs');
 const input = fs.readFileSync('./input.txt', 'utf8').split('\n');
 
@@ -80,10 +90,14 @@ if [ ! -f "$C_RESULT_FILE" ]; then
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
-    int x;
-    int y;
-} Direction;
+/*
+    --- Part 1 ---
+    General approach
+
+    ---- Part 2 ---
+    General approach
+
+*/
 
 char* read_file(const char* filename) {
     FILE* file = fopen(filename, "r");
