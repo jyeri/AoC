@@ -2,11 +2,19 @@
 
 /*
     --- Part 1 ---
-    General approach
+    Question was how many of the trailheads actually end up at 9, instead how many differet paths lead to 9.
+    I ended up parsing the input again even though it was unnecessary in the ens, but i xhanges it to 2D array of numbers.
+    After input check I looped through input to find every single 0 and stored them in array as starting points.
+    When I had all starting points locates I called dfs function for each of them. I utilized visited set to keep track of visited nodes, this way I could avoid going redudant paths.
+    I also used directions array to move in 4 directions, and inbounds function to check if the move is valid.
+    Finally when path reaches 9, I add this paths score.
+    when all paths are checked I add all the trailscores to p1_ans and print it.
 
 
     --- Part 2 ---
-    General approach
+    Part2 was beyond easy because I already did it as my first iteration to part1.
+    This time I keep every single path that reaches 9, instead only 1 per starting point.
+    rest of the operations are the same as part 1.
 */
 
 const fs = require('fs');
