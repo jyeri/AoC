@@ -14,6 +14,10 @@
     I had to backtrack from the end to the start to find all the best paths.
     I had to keep track of the best path tiles and print them out.
     One fix was to accuerately check both of possible directions instead one (this should have not worked even in part1)
+
+
+    As bonus i asked out bestfriend Copilot to visualize the approach that I took, its helped me to understand the solution better.
+    It might help you too :)
 */
 
 const PriorityQueue = require('./priorityQueue.js');
@@ -21,6 +25,33 @@ const fs = require('fs');
 const input = fs.readFileSync('./input.txt', 'utf8')
     .trim()
     .split('\n');
+
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    const visualizeMaze = async (parsedInput, bestPathTiles, currentTile = null, backtrackingTile = null) => {
+        const chalk = (await import('chalk')).default; // Dynamically import chalk
+    
+        console.clear();
+        for (let i = 0; i < parsedInput.length; i++) {
+            let row = '';
+            for (let j = 0; j < parsedInput[0].length; j++) {
+                const key = `${i},${j}`;
+                if (key === currentTile) {
+                    row += chalk.red.bold('X'); // Current tile being processed
+                } else if (key === backtrackingTile) {
+                    row += chalk.yellow.bold('B'); // Backtracking tile
+                } else if (bestPathTiles.has(key)) {
+                    row += chalk.green('O'); // Part of the shortest paths
+                } else if (parsedInput[i][j] === '#') {
+                    row += chalk.gray(parsedInput[i][j]); // Walls
+                } else {
+                    row += parsedInput[i][j]; // Default tile
+                }
+            }
+            console.log(row);
+        }
+        await sleep(100); // Pause to visualize each step
+    };
 
 // Part 1
 const solvePart1 = () => {
@@ -118,7 +149,7 @@ const solvePart1 = () => {
 
 // Part 2
 
-const solvePart2 = () => {
+const solvePart2 = async () => {
     const tester = [
         "#################",
         "#...#...#...#..E#",
@@ -140,14 +171,13 @@ const solvePart2 = () => {
     ];
 
     // input is actual, tester just for testing
-    const parsedInput = input.map(row => row.split(''));
-    // const parsedInput = tester.map(row => row.split(''));
-
+    // const parsedInput = input.map(row => row.split(''));
+    const parsedInput = tester.map(row => row.split(''));
     const directions = [
-        { dx: 0, dy: 1, dir: 'E' }, 
-        { dx: 1, dy: 0, dir: 'S' },  
+        { dx: 0, dy: 1, dir: 'E' },
+        { dx: 1, dy: 0, dir: 'S' },
         { dx: 0, dy: -1, dir: 'W' },
-        { dx: -1, dy: 0, dir: 'N' }  
+        { dx: -1, dy: 0, dir: 'N' }
     ];
 
     let startX, startY, endX, endY;
@@ -196,7 +226,7 @@ const solvePart2 = () => {
         const key = `${x},${y},${dx},${dy}`;
         if (visited[key] && visited[key] < cost) {
             continue;
-        };
+        }
         visited[key] = cost;
 
         if (parsedInput[x][y] === 'E') {
@@ -206,40 +236,44 @@ const solvePart2 = () => {
         if (isValid(x + dx, y + dy)) {
             enqueue(cost + 1, x + dx, y + dy, dx, dy, [x, y, dx, dy]);
         }
-        // this time accurately que the rotation for either direction
         enqueue(cost + 1000, x, y, -dy, dx, [x, y, dx, dy]);
         enqueue(cost + 1000, x, y, dy, -dx, [x, y, dx, dy]);
+
+        await visualizeMaze(parsedInput, new Set(Object.keys(queued).map(k => k.split(',').slice(0, 2).join(','))), `${x},${y}`);
     }
 
     const seats = {};
-    const backtrack = (x, y, dx, dy) => {
+    const backtrack = async (x, y, dx, dy) => {
         const key = `${x},${y},${dx},${dy}`;
-        if (seats[key])
-        {
+        if (seats[key]) {
             return;
         }
         seats[key] = true;
+
+        // Visualize backtracking step
+        await visualizeMaze(parsedInput, new Set(Object.keys(seats).map(key => key.split(',').slice(0, 2).join(','))), null, `${x},${y}`);
+
         for (const [prevX, prevY, prevDX, prevDY] of queued[key][1]) {
-            backtrack(prevX, prevY, prevDX, prevDY);
+            await backtrack(prevX, prevY, prevDX, prevDY);
         }
     };
 
-    // we backtrack from the end to the start to find all the best paths
-    // for sake of simplicity we use dir 0, 1. for input that i got only nono working is 0, -1
-    backtrack(endX, endY, 0, 1);
-    const bestPathTiles = new Set(Object.keys(seats).map(key => key.split(',').slice(0, 2).join(',')));
+    backtrack(endX, endY, 0, 1).then(() => {
+        const bestPathTiles = new Set(Object.keys(seats).map(key => key.split(',').slice(0, 2).join(',')));
 
-    for (let i = 0; i < parsedInput.length; i++) {
-        for (let j = 0; j < parsedInput[0].length; j++) {
-            const key = `${i},${j}`;
-            if (bestPathTiles.has(key)) {
-                parsedInput[i][j] = 'O';
+        for (let i = 0; i < parsedInput.length; i++) {
+            for (let j = 0; j < parsedInput[0].length; j++) {
+                const key = `${i},${j}`;
+                if (bestPathTiles.has(key)) {
+                    parsedInput[i][j] = 'O';
+                }
             }
         }
-    }
 
-    console.log(parsedInput.map(row => row.join('')).join('\n'));
-    console.log('Part 2:', bestPathTiles.size);
+        console.clear();
+        console.log(parsedInput.map(row => row.join('')).join('\n'));
+        console.log('Part 2:', bestPathTiles.size);
+    });
 };
 
 solvePart1();
